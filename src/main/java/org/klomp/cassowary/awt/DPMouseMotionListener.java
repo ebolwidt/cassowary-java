@@ -11,7 +11,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 
-
 public final class DPMouseMotionListener extends MouseAdapter implements MouseMotionListener {
 
     // Reference to DrawPanel
@@ -25,27 +24,32 @@ public final class DPMouseMotionListener extends MouseAdapter implements MouseMo
 
     // Invoked when mouse enters container. Used to shift keyboard input
     // focus to the DrawPanel so it can catch keypresses.
+    @Override
     public void mouseEntered(MouseEvent e) {
         // System.out.println("DPMML.mouseEntered invoked");
         drawPanel.requestFocus();
     }
 
     // Invoked when mouse leaves container
+    @Override
     public void mouseExited(MouseEvent e) {
         // System.out.println("DPMML.mouseExited invoked");
     }
 
     // Invoked when mouse is moved without any buttons pressed
+    @Override
     public void mouseMoved(MouseEvent e) {
         drawPanel.notifyMousePosition(e);
     }
 
     // Invoked when mouse is dragged
+    @Override
     public void mouseDragged(MouseEvent e) {
         drawPanel.mouseDragged(e);
     }
 
     // Invoked when mouse is pressed
+    @Override
     public void mousePressed(MouseEvent e) {
 
         // System.out.println("DPMML.mousePressed invoked, mouse at ("
@@ -56,6 +60,7 @@ public final class DPMouseMotionListener extends MouseAdapter implements MouseMo
 
     // Invoked when mouse is released. Removes all edit constraints.
     // If a selection box was being drawn, select everything in it.
+    @Override
     public void mouseReleased(MouseEvent e) {
         // System.out.println("DPMML.mouseReleased invoked, mouse at ("
         // + e.getX() + ", " + e.getY() + ")");

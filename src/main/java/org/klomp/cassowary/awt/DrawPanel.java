@@ -37,8 +37,8 @@ import java.awt.event.MouseEvent;
 import java.awt.image.ImageObserver;
 import java.util.Vector;
 
-import org.klomp.cassowary.ClSimplexSolver;
 import org.klomp.cassowary.CLInternalError;
+import org.klomp.cassowary.ClSimplexSolver;
 import org.klomp.cassowary.awt.component.CircleCC;
 import org.klomp.cassowary.awt.component.ConstrComponent;
 import org.klomp.cassowary.awt.component.EditConstantList;
@@ -200,6 +200,7 @@ class DrawPanel extends Panel {
         }
     }
 
+    @Override
     public Dimension getMinimumSize() {
         return new Dimension(100, 100);
     }
@@ -242,6 +243,7 @@ class DrawPanel extends Panel {
     }
 
     // Update method, called by repaint(). Renders into the buffer.
+    @Override
     public void update(Graphics g) {
         renderToBuffer();
         paint(g);
@@ -249,6 +251,7 @@ class DrawPanel extends Panel {
     }
 
     // Paint method. Blits the buffer to the screen.
+    @Override
     public void paint(Graphics g) {
         if (paintBuffer == null) {
             // Generate the image first
@@ -820,6 +823,7 @@ class DrawPanel extends Panel {
     }
 
     // Remove everything from the panel (all groups, constraints, etc)
+    @Override
     public void removeAll() {
         System.out.println("DP.remAll invoked");
         int a;

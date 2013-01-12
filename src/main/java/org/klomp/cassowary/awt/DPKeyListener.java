@@ -12,7 +12,6 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-
 public final class DPKeyListener extends KeyAdapter implements KeyListener {
     // Reference to DrawPanel
     DrawPanel drawPanel;
@@ -21,10 +20,12 @@ public final class DPKeyListener extends KeyAdapter implements KeyListener {
         this.drawPanel = drawPanel;
     }
 
+    @Override
     public void keyPressed(KeyEvent e) {
         // System.out.println("DPKL.kP: " + e.getKeyChar());
     }
 
+    @Override
     public void keyReleased(KeyEvent e) {
         // System.out.println("DPKL.kR: " + e.getKeyChar());
 

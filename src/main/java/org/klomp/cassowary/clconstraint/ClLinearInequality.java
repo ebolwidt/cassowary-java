@@ -13,11 +13,11 @@
 package org.klomp.cassowary.clconstraint;
 
 import org.klomp.cassowary.CL;
+import org.klomp.cassowary.CLInternalError;
 import org.klomp.cassowary.ClAbstractVariable;
 import org.klomp.cassowary.ClLinearExpression;
 import org.klomp.cassowary.ClStrength;
 import org.klomp.cassowary.ClVariable;
-import org.klomp.cassowary.CLInternalError;
 
 public class ClLinearInequality extends ClLinearConstraint {
 
@@ -77,7 +77,7 @@ public class ClLinearInequality extends ClLinearConstraint {
 
     public ClLinearInequality(ClLinearExpression cle1, byte op_enum, ClLinearExpression cle2, ClStrength strength, double weight)
             throws CLInternalError {
-        super(((ClLinearExpression) cle2.clone()), strength, weight);
+        super(cle2.clone(), strength, weight);
         if (op_enum == CL.GEQ) {
             _expression.multiplyMe(-1.0);
             _expression.addExpression(cle1);
@@ -99,7 +99,7 @@ public class ClLinearInequality extends ClLinearConstraint {
 
     public ClLinearInequality(ClAbstractVariable clv, byte op_enum, ClLinearExpression cle, ClStrength strength, double weight)
             throws CLInternalError {
-        super(((ClLinearExpression) cle.clone()), strength, weight);
+        super(cle.clone(), strength, weight);
         if (op_enum == CL.GEQ) {
             _expression.multiplyMe(-1.0);
             _expression.addVariable(clv);
@@ -121,7 +121,7 @@ public class ClLinearInequality extends ClLinearConstraint {
 
     public ClLinearInequality(ClLinearExpression cle, byte op_enum, ClAbstractVariable clv, ClStrength strength, double weight)
             throws CLInternalError {
-        super(((ClLinearExpression) cle.clone()), strength, weight);
+        super(cle.clone(), strength, weight);
         if (op_enum == CL.LEQ) {
             _expression.multiplyMe(-1.0);
             _expression.addVariable(clv);
@@ -141,10 +141,12 @@ public class ClLinearInequality extends ClLinearConstraint {
         this(cle, op_enum, clv, ClStrength.required, 1.0);
     }
 
+    @Override
     public final boolean isInequality() {
         return true;
     }
 
+    @Override
     public final String toString() {
         return super.toString() + " >= 0 )";
     }

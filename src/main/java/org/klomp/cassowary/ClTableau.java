@@ -16,36 +16,38 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.klomp.cassowary.util.IdentityHashSet;
+
 class ClTableau extends CL {
     // _columns is a mapping from variables which occur in expressions to the
     // set of basic variables whose expressions contain them
     // i.e., it's a mapping from variables in expressions (a column) to the
     // set of rows that contain them
-    protected Map<ClAbstractVariable, Set<ClAbstractVariable>> _columns; // From ClAbstractVariable to Set of variables
+    protected IdentityHashMap<ClAbstractVariable, Set<ClAbstractVariable>> _columns;
 
     // _rows maps basic variables to the expressions for that row in the tableau
-    protected Map<ClAbstractVariable, ClLinearExpression> _rows; // From ClAbstractVariable to ClLinearExpression
+    protected IdentityHashMap<ClAbstractVariable, ClLinearExpression> _rows;
 
     // the collection of basic variables that have infeasible rows
     // (used when reoptimizing)
-    protected Set<ClAbstractVariable> _infeasibleRows; // Set of ClAbstractVariable-s
+    protected IdentityHashSet<ClAbstractVariable> _infeasibleRows;
 
     // the set of rows where the basic variable is external
     // this was added to the Java/C++ versions to reduce time in setExternalVariables()
-    protected Set<ClVariable> _externalRows; // Set of ClVariable-s
+    protected IdentityHashSet<ClVariable> _externalRows;
 
     // the set of external variables which are parametric
     // this was added to the Java/C++ versions to reduce time in setExternalVariables()
-    protected Set<ClVariable> _externalParametricVars; // Set of ClVariable-s
+    protected IdentityHashSet<ClVariable> _externalParametricVars;
 
     // ctr is protected, since this only supports an ADT for
     // the ClSimplexSolved class
     protected ClTableau() {
         _columns = new IdentityHashMap<ClAbstractVariable, Set<ClAbstractVariable>>();
         _rows = new IdentityHashMap<ClAbstractVariable, ClLinearExpression>();
-        _infeasibleRows = new HashSet<ClAbstractVariable>();
-        _externalRows = new HashSet<ClVariable>();
-        _externalParametricVars = new HashSet<ClVariable>();
+        _infeasibleRows = new IdentityHashSet<ClAbstractVariable>();
+        _externalRows = new IdentityHashSet<ClVariable>();
+        _externalParametricVars = new IdentityHashSet<ClVariable>();
     }
 
     // Variable v has been removed from an expression. If the

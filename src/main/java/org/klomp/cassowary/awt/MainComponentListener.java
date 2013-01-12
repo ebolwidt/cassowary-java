@@ -18,6 +18,7 @@ public class MainComponentListener extends ComponentAdapter {
         this.mainPanel = mainPanel;
     }
 
+    @Override
     public void componentResized(ComponentEvent e) {
         /*
          * System.out.println("Main.cR invoked, str= " + e.paramString() + "'");

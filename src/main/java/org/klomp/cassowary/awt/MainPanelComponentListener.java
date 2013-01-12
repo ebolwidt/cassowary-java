@@ -22,6 +22,7 @@ public class MainPanelComponentListener extends ComponentAdapter implements Comp
         this.mainPanel = mainPanel;
     }
 
+    @Override
     public void componentResized(ComponentEvent e) {
         /*
          * System.out.println("MPCl.cR invoked, str = '" + e.paramString() + "'");

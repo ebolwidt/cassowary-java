@@ -25,22 +25,27 @@ class ClDummyVariable extends ClAbstractVariable {
         super(number, prefix);
     }
 
+    @Override
     public String toString() {
         return "[" + name() + ":dummy]";
     }
 
+    @Override
     public boolean isDummy() {
         return true;
     }
 
+    @Override
     public boolean isExternal() {
         return false;
     }
 
+    @Override
     public boolean isPivotable() {
         return false;
     }
 
+    @Override
     public boolean isRestricted() {
         return true;
     }

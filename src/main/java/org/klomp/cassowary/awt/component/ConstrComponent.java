@@ -449,6 +449,7 @@ public abstract class ConstrComponent {
     public void cleanUp() {
     }
 
+    @Override
     public void finalize() {
         cleanUp();
     }

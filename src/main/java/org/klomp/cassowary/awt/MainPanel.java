@@ -16,7 +16,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Panel;
 
-
 class MainPanel extends Panel {
 
     public DrawPanel drawPanel;
@@ -82,12 +81,14 @@ class MainPanel extends Panel {
         System.out.println("MainPanel constructor called");
     }
 
+    @Override
     public void paint(Graphics g) {
         /*
          * System.out.println("MainPanel.paint invoked");
          */
     }
 
+    @Override
     public void update(Graphics g) {
         /*
          * System.out.println("MainPanel.update invoked");

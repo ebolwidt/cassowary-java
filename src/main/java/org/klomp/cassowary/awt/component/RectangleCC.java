@@ -11,10 +11,10 @@ package org.klomp.cassowary.awt.component;
 import java.awt.Color;
 import java.awt.Graphics;
 
+import org.klomp.cassowary.CLInternalError;
 import org.klomp.cassowary.ClLinearExpression;
 import org.klomp.cassowary.ClSimplexSolver;
 import org.klomp.cassowary.ConstraintNotFoundException;
-import org.klomp.cassowary.CLInternalError;
 import org.klomp.cassowary.RequiredConstraintFailureException;
 import org.klomp.cassowary.clconstraint.ClLinearEquation;
 
@@ -67,6 +67,7 @@ public class RectangleCC extends ConstrComponent {
     }
 
     // The bottom-right corner (c3) is the end SP for placement purposes
+    @Override
     public SelPoint getEndSP() {
         return c3;
     }
@@ -123,6 +124,7 @@ public class RectangleCC extends ConstrComponent {
     }
 
     // Implementation of draw method
+    @Override
     public void draw(Graphics g) {
         super.draw(g);
         if (!isSelected && !isHighlighted) {
@@ -138,6 +140,7 @@ public class RectangleCC extends ConstrComponent {
 
     // Performs necessary updates when the SelPoint at index idx is to be
     // replaced with newsp.
+    @Override
     protected void notifySelPointReplacement(int idx, SelPoint newsp) {
         SelPoint sp = (SelPoint) selPoints.elementAt(idx);
 
@@ -179,6 +182,7 @@ public class RectangleCC extends ConstrComponent {
     }
 
     // Clean-up function
+    @Override
     public void cleanUp() {
         /*
          * System.out.println("RectangleCC.cleanUp invoked on " + this);
@@ -186,6 +190,7 @@ public class RectangleCC extends ConstrComponent {
         removeCornerConstraints();
     }
 
+    @Override
     public void finalize() {
         /*
          * System.out.println("RectangleCC.finalize invoked on " + this);
@@ -194,6 +199,7 @@ public class RectangleCC extends ConstrComponent {
     }
 
     // Return a string version of the component
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("RectangleCC: ");
         sb.append("[" + c1 + ", " + c2 + ", " + c3 + ", " + c4 + "]");

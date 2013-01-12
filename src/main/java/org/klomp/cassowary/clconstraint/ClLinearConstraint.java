@@ -32,6 +32,7 @@ class ClLinearConstraint extends ClConstraint {
         _expression = cle;
     }
 
+    @Override
     public ClLinearExpression expression() {
         return _expression;
     }

@@ -26,6 +26,7 @@ public class ClStrength {
         return (this == required);
     }
 
+    @Override
     public String toString() {
         return name() + (!isRequired() ? (":" + symbolicWeight()) : "");
     }

@@ -10,8 +10,8 @@
 package org.klomp.cassowary.awt.constraint;
 
 import org.klomp.cassowary.CL;
-import org.klomp.cassowary.ClSimplexSolver;
 import org.klomp.cassowary.CLInternalError;
+import org.klomp.cassowary.ClSimplexSolver;
 import org.klomp.cassowary.RequiredConstraintFailureException;
 import org.klomp.cassowary.awt.component.ConstrComponent;
 import org.klomp.cassowary.awt.component.SelPoint;
@@ -26,11 +26,9 @@ public class AboveConstraint extends AdjacencyConstraint {
 
     // Add constraints to solver. This entails establishing a constraint on
     // every SelPoint in the target to be above the highest SelPoint in the src.
+    @Override
     public void addConstraints() {
-        int a;
-        SelPoint sp;
         ConstrComponent srcCC, targetCC;
-        ClLinearInequality cli;
 
         if (ccList.size() != 2) {
             System.out.println("AboveConstr.addConstr: " + ccList.size() + " CC's, not required 2!");
@@ -39,28 +37,30 @@ public class AboveConstraint extends AdjacencyConstraint {
         srcCC = (ConstrComponent) ccList.elementAt(0);
         targetCC = (ConstrComponent) ccList.elementAt(1);
 
-        if (relConstrs.size() != targetCC.selPoints.size()) {
+        int size = targetCC.selPoints.size();
+        if (relConstrs.size() != size) {
             // Need to create new constraints
-            if (relConstrs.size() != 0) {
-                System.out.println("AboveConstr.addConstr: relConstrs = " + relConstrs + "; should be empty!");
-                relConstrs.removeAllElements();
-                relConstrs.setSize(targetCC.selPoints.size());
+            if (!relConstrs.isEmpty()) {
+                relConstrs.clear();
             }
-            relConstrs.setSize(targetCC.selPoints.size());
-            for (a = 0; a < targetCC.selPoints.size(); a++) {
-                sp = (SelPoint) targetCC.selPoints.elementAt(a);
+            for (int i = 0; i < size; i++) {
+                relConstrs.add(null);
+            }
+
+            for (int a = 0; a < size; a++) {
+                SelPoint sp = (SelPoint) targetCC.selPoints.elementAt(a);
                 try {
-                    cli = new ClLinearInequality(sp.Y(), CL.LEQ, srcCC.topSP.Y());
+                    ClLinearInequality cli = new ClLinearInequality(sp.Y(), CL.LEQ, srcCC.topSP.Y());
+                    relConstrs.set(a, cli);
                 } catch (CLInternalError e) {
                     System.out.println("AboveConstr.constructor: ExCLInternalError on #" + a);
                     return;
                 }
-                relConstrs.setElementAt(cli, a);
             }
         }
 
-        for (a = 0; a < relConstrs.size(); a++) {
-            cli = (ClLinearInequality) relConstrs.elementAt(a);
+        for (int a = 0; a < relConstrs.size(); a++) {
+            ClLinearInequality cli = relConstrs.get(a);
             try {
                 if (cli != null)
                     solver.addConstraint(cli);
@@ -74,6 +74,7 @@ public class AboveConstraint extends AdjacencyConstraint {
     }
 
     // Method to convert constraint to a string
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("AboveConstraint: ");
         ConstrComponent srcCC, targetCC;

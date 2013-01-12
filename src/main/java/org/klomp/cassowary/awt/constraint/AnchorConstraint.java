@@ -11,10 +11,10 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 import org.klomp.cassowary.CDA_G;
+import org.klomp.cassowary.CLInternalError;
 import org.klomp.cassowary.ClSimplexSolver;
 import org.klomp.cassowary.ClStrength;
 import org.klomp.cassowary.ConstraintNotFoundException;
-import org.klomp.cassowary.CLInternalError;
 import org.klomp.cassowary.RequiredConstraintFailureException;
 import org.klomp.cassowary.awt.component.SelPoint;
 import org.klomp.cassowary.clconstraint.ClStayConstraint;
@@ -36,6 +36,7 @@ public class AnchorConstraint extends Constraint {
         addConstraints();
     }
 
+    @Override
     public void draw(Graphics g) {
         x = (int) ((SelPoint) selPointList.elementAt(0)).X().value();
         y = (int) ((SelPoint) selPointList.elementAt(0)).Y().value();
@@ -59,6 +60,7 @@ public class AnchorConstraint extends Constraint {
     }
 
     // Add constraints to solver
+    @Override
     public void addConstraints() {
         SelPoint sp = (SelPoint) selPointList.elementAt(0);
         if (sp == null)
@@ -80,6 +82,7 @@ public class AnchorConstraint extends Constraint {
     }
 
     // Remove constraints from solver
+    @Override
     public void removeConstraints() {
         try {
             if (stayConstrX != null)
@@ -96,6 +99,7 @@ public class AnchorConstraint extends Constraint {
     }
 
     // Convert object to a string
+    @Override
     public String toString() {
         SelPoint sp = (SelPoint) selPointList.elementAt(0);
         return new String("Anchor:" + sp);
@@ -104,6 +108,7 @@ public class AnchorConstraint extends Constraint {
     // Replace a given SelPoint with another. Needs to update the stay
     // constraints. For an anchor constraint, there had better only be one
     // point in the list!
+    @Override
     public void replaceSelPoint(SelPoint oldsp, SelPoint newsp) {
         if (selPointList.size() != 1) {
             /*
@@ -131,6 +136,7 @@ public class AnchorConstraint extends Constraint {
 
     // An anchor constraint is valid unless it is no longer associated with
     // a SelPoint.
+    @Override
     public boolean canDiscard() {
         SelPoint sp;
         if (selPointList.size() < 1)

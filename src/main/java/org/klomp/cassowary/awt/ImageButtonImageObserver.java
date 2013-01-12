@@ -19,6 +19,7 @@ public class ImageButtonImageObserver implements ImageObserver {
         this.imageButton = imageButton;
     }
 
+    @Override
     public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
         if ((infoflags & ALLBITS) != 0) {
             // Finished retrieving the image, so draw it

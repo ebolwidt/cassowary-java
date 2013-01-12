@@ -10,12 +10,12 @@ package org.klomp.cassowary.awt;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-
 public final class PlaceBtnsActionListener implements ActionListener {
 
     // Reference to DrawPanel
     DrawPanel drawPanel;
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         ImageButton ib = (ImageButton) e.getSource();
         ib.repaint();

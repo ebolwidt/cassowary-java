@@ -21,30 +21,37 @@ public class ClDouble extends Number {
         this(0.0);
     }
 
+    @Override
     public final ClDouble clone() {
         return new ClDouble(value);
     }
 
+    @Override
     public final double doubleValue() {
         return value;
     }
 
+    @Override
     public final int intValue() {
         return (int) value;
     }
 
+    @Override
     public final long longValue() {
         return (long) value;
     }
 
+    @Override
     public final float floatValue() {
         return (float) value;
     }
 
+    @Override
     public final byte byteValue() {
         return (byte) value;
     }
 
+    @Override
     public final short shortValue() {
         return (short) value;
     }
@@ -53,10 +60,12 @@ public class ClDouble extends Number {
         value = val;
     }
 
+    @Override
     public final String toString() {
         return java.lang.Double.toString(value);
     }
 
+    @Override
     public final boolean equals(Object o) {
         try {
             return value == ((ClDouble) o).value;
@@ -65,6 +74,7 @@ public class ClDouble extends Number {
         }
     }
 
+    @Override
     public final int hashCode() {
         System.err.println("ClDouble.hashCode() called!");
         return (int) java.lang.Double.doubleToLongBits(value);

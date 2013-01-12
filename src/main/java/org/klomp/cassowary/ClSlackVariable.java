@@ -27,18 +27,22 @@ class ClSlackVariable extends ClAbstractVariable {
         super(number, prefix);
     }
 
+    @Override
     public String toString() {
         return "[" + name() + ":slack]";
     }
 
+    @Override
     public boolean isExternal() {
         return false;
     }
 
+    @Override
     public boolean isPivotable() {
         return true;
     }
 
+    @Override
     public boolean isRestricted() {
         return true;
     }

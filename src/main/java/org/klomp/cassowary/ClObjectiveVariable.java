@@ -21,20 +21,24 @@ class ClObjectiveVariable extends ClAbstractVariable {
         super(number, prefix);
     }
 
+    @Override
     public String toString()
     // { return "[" + name() + ":obj:" + hashCode() + "]"; }
     {
         return "[" + name() + ":obj]";
     }
 
+    @Override
     public boolean isExternal() {
         return false;
     }
 
+    @Override
     public boolean isPivotable() {
         return false;
     }
 
+    @Override
     public boolean isRestricted() {
         return false;
     }

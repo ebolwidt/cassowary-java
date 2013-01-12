@@ -11,10 +11,10 @@ package org.klomp.cassowary.awt.component;
 import java.awt.Color;
 import java.awt.Graphics;
 
+import org.klomp.cassowary.CLInternalError;
 import org.klomp.cassowary.ClLinearExpression;
 import org.klomp.cassowary.ClSimplexSolver;
 import org.klomp.cassowary.ConstraintNotFoundException;
-import org.klomp.cassowary.CLInternalError;
 import org.klomp.cassowary.NonlinearExpressionException;
 import org.klomp.cassowary.RequiredConstraintFailureException;
 import org.klomp.cassowary.clconstraint.ClLinearEquation;
@@ -62,6 +62,7 @@ public class MidpointLineCC extends ConstrComponent {
     }
 
     // p2 is the end SP for placement purposes
+    @Override
     public SelPoint getEndSP() {
         return p2;
     }
@@ -105,6 +106,7 @@ public class MidpointLineCC extends ConstrComponent {
     }
 
     // Implementation of draw method
+    @Override
     public void draw(Graphics g) {
         super.draw(g);
         g.setColor(c);
@@ -113,6 +115,7 @@ public class MidpointLineCC extends ConstrComponent {
 
     // Performs necessary updates when the SelPoint at index idx is to be
     // replaced with newsp.
+    @Override
     protected void notifySelPointReplacement(int idx, SelPoint newsp) {
         SelPoint sp = (SelPoint) selPoints.elementAt(idx);
 
@@ -147,6 +150,7 @@ public class MidpointLineCC extends ConstrComponent {
     }
 
     // Clean-up function
+    @Override
     public void cleanUp() {
         /*
          * System.out.println("MidpointLineCC.cleanUp invoked on " + this);
@@ -154,6 +158,7 @@ public class MidpointLineCC extends ConstrComponent {
         removeMPConstraints();
     }
 
+    @Override
     public void finalize() {
         /*
          * System.out.println("MidpointLineCC.finalize invoked on " + this);
@@ -162,6 +167,7 @@ public class MidpointLineCC extends ConstrComponent {
     }
 
     // Return a string version of the component
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer(super.toString());
         sb.append(" => [" + p1 + ", " + mp + ", " + p2 + "]");

@@ -43,11 +43,13 @@ public class CircleCC extends ConstrComponent {
     }
 
     // The lowerRight corner SP is the end SP for placement purposes
+    @Override
     public SelPoint getEndSP() {
         return lowerRight;
     }
 
     // Implementation of draw method
+    @Override
     public void draw(Graphics g) {
         super.draw(g);
         g.setColor(c);
@@ -57,6 +59,7 @@ public class CircleCC extends ConstrComponent {
     // Performs necessary updates when the SelPoint at index idx is to be
     // replaced with newsp. Just check to see which one of the edge points
     // have been replaced, and update it accordingly.
+    @Override
     protected void notifySelPointReplacement(int idx, SelPoint newsp) {
         SelPoint sp = (SelPoint) selPoints.elementAt(idx);
 
@@ -79,6 +82,7 @@ public class CircleCC extends ConstrComponent {
     }
 
     // Return a string version of the CircleCC
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer(super.toString());
         sb.append(" => ");
@@ -87,6 +91,7 @@ public class CircleCC extends ConstrComponent {
     }
 
     // Clean-up function
+    @Override
     public void finalize() {
         /*
          * System.out.println("CircleCC.finalize called on " + this);

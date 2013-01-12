@@ -13,7 +13,6 @@ import java.awt.Button;
 import java.awt.GridLayout;
 import java.awt.Panel;
 
-
 public class PlaceBtns extends Panel {
 
     // Reference to the DrawPanel

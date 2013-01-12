@@ -10,8 +10,8 @@
 package org.klomp.cassowary.awt.constraint;
 
 import org.klomp.cassowary.CL;
-import org.klomp.cassowary.ClSimplexSolver;
 import org.klomp.cassowary.CLInternalError;
+import org.klomp.cassowary.ClSimplexSolver;
 import org.klomp.cassowary.RequiredConstraintFailureException;
 import org.klomp.cassowary.awt.component.ConstrComponent;
 import org.klomp.cassowary.awt.component.SelPoint;
@@ -26,12 +26,9 @@ public class LeftOfConstraint extends AdjacencyConstraint {
 
     // Add constraints to solver. This entails establishing a constraint on
     // every SelPoint in the target to be left of the leftmost SP in the src.
+    @Override
     public void addConstraints() {
-        int a;
-        SelPoint sp;
         ConstrComponent srcCC, targetCC;
-        double targval;
-        ClLinearInequality cli;
 
         if (ccList.size() != 2) {
             System.out.println("LeftOfConstr.addConstr: " + ccList.size() + " CC's, not required 2!");
@@ -40,28 +37,30 @@ public class LeftOfConstraint extends AdjacencyConstraint {
         srcCC = (ConstrComponent) ccList.elementAt(0);
         targetCC = (ConstrComponent) ccList.elementAt(1);
 
-        if (relConstrs.size() != targetCC.selPoints.size()) {
+        int size = targetCC.selPoints.size();
+        if (relConstrs.size() != size) {
             // Need to create new constraints
-            if (relConstrs.size() != 0) {
-                System.out.println("LeftOfConstr.addConstr: relConstrs = " + relConstrs + "; should be empty!");
-                relConstrs.removeAllElements();
-                relConstrs.setSize(targetCC.selPoints.size());
+            if (!relConstrs.isEmpty()) {
+                relConstrs.clear();
             }
-            relConstrs.setSize(targetCC.selPoints.size());
-            for (a = 0; a < targetCC.selPoints.size(); a++) {
-                sp = (SelPoint) targetCC.selPoints.elementAt(a);
+            for (int i = 0; i < size; i++) {
+                relConstrs.add(null);
+            }
+            for (int a = 0; a < targetCC.selPoints.size(); a++) {
+                SelPoint sp = (SelPoint) targetCC.selPoints.elementAt(a);
                 try {
-                    cli = new ClLinearInequality(sp.X(), CL.LEQ, srcCC.leftSP.X());
+                    ClLinearInequality cli = new ClLinearInequality(sp.X(), CL.LEQ, srcCC.leftSP.X());
+                    relConstrs.set(a, cli);
                 } catch (CLInternalError e) {
                     System.out.println("LeftOfConstr.constructor: ExCLInternalError on #" + a);
                     return;
                 }
-                relConstrs.setElementAt(cli, a);
+
             }
         }
 
-        for (a = 0; a < relConstrs.size(); a++) {
-            cli = (ClLinearInequality) relConstrs.elementAt(a);
+        for (int a = 0; a < relConstrs.size(); a++) {
+            ClLinearInequality cli = relConstrs.get(a);
             try {
                 if (cli != null)
                     solver.addConstraint(cli);
@@ -75,6 +74,7 @@ public class LeftOfConstraint extends AdjacencyConstraint {
     }
 
     // Method to convert constraint to a string
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("LeftOfConstraint: ");
         ConstrComponent srcCC, targetCC;

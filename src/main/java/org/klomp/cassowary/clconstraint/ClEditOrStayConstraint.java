@@ -41,6 +41,7 @@ abstract class ClEditOrStayConstraint extends ClConstraint {
         return _variable;
     }
 
+    @Override
     public ClLinearExpression expression() {
         return _expression;
     }

@@ -1,9 +1,9 @@
 // $Id: Yylex.java,v 1.5 2000/05/04 18:00:29 gjb Exp $
 package org.klomp.cassowary.parser;
 
-import org.klomp.cassowary.ClVariable;
-
 import java_cup.runtime.Symbol;
+
+import org.klomp.cassowary.ClVariable;
 
 public class Yylex implements java_cup.runtime.Scanner {
     private final int YY_BUFFER_SIZE = 512;
@@ -228,6 +228,7 @@ public class Yylex implements java_cup.runtime.Scanner {
     private int yy_nxt[][] = unpackFromString(8, 16,
             "1,2,3,4,15,5,6,7,8,9,10,11,17,12,18:2,-1:17,2,-1:17,13,-1:23,11,16,-1:14,12" + ",-1,12:2,-1:4,14,-1:23,16,-1:4");
 
+    @Override
     public java_cup.runtime.Symbol next_token() throws java.io.IOException {
         int yy_lookahead;
         int yy_anchor = YY_NO_ANCHOR;

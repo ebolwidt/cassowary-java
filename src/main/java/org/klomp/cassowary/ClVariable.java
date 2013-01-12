@@ -11,24 +11,20 @@
 
 package org.klomp.cassowary;
 
-import java.util.Hashtable;
-
 public class ClVariable extends ClAbstractVariable {
+
+    private double _value;
+
+    private Object _attachedObject;
 
     public ClVariable(String name, double value) {
         super(name);
         _value = value;
-        if (_ourVarMap != null) {
-            _ourVarMap.put(name, this);
-        }
     }
 
     public ClVariable(String name) {
         super(name);
         _value = 0.0;
-        if (_ourVarMap != null) {
-            _ourVarMap.put(name, this);
-        }
     }
 
     public ClVariable(double value) {
@@ -49,22 +45,27 @@ public class ClVariable extends ClAbstractVariable {
         _value = 0.0;
     }
 
+    @Override
     public boolean isDummy() {
         return false;
     }
 
+    @Override
     public boolean isExternal() {
         return true;
     }
 
+    @Override
     public boolean isPivotable() {
         return false;
     }
 
+    @Override
     public boolean isRestricted() {
         return false;
     }
 
+    @Override
     public String toString() {
         return "[" + name() + ":" + _value + "]";
     }
@@ -94,19 +95,5 @@ public class ClVariable extends ClAbstractVariable {
     public Object getAttachedObject() {
         return _attachedObject;
     }
-
-    public static void setVarMap(Hashtable map) {
-        _ourVarMap = map;
-    }
-
-    public static Hashtable getVarMap() {
-        return _ourVarMap;
-    }
-
-    private static Hashtable _ourVarMap;
-
-    private double _value;
-
-    private Object _attachedObject;
 
 }

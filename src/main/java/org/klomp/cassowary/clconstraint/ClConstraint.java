@@ -69,6 +69,7 @@ public abstract class ClConstraint {
         return _weight;
     }
 
+    @Override
     public String toString() {
         return _strength.toString() + " {" + weight() + "} (" + expression();
     }

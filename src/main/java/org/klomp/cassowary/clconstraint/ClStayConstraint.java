@@ -29,10 +29,12 @@ public class ClStayConstraint extends ClEditOrStayConstraint {
         super(var, ClStrength.weak, 1.0);
     }
 
+    @Override
     public boolean isStayConstraint() {
         return true;
     }
 
+    @Override
     public String toString() {
         return "stay " + super.toString();
     }

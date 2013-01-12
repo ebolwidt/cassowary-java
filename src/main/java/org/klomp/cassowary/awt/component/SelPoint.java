@@ -24,11 +24,11 @@ import java.util.Vector;
 
 import org.klomp.cassowary.CDA_G;
 import org.klomp.cassowary.CL;
+import org.klomp.cassowary.CLInternalError;
 import org.klomp.cassowary.ClSimplexSolver;
 import org.klomp.cassowary.ClStrength;
 import org.klomp.cassowary.ClVariable;
 import org.klomp.cassowary.ConstraintNotFoundException;
-import org.klomp.cassowary.CLInternalError;
 import org.klomp.cassowary.RequiredConstraintFailureException;
 import org.klomp.cassowary.awt.constraint.Constraint;
 import org.klomp.cassowary.clconstraint.ClEditConstraint;
@@ -338,6 +338,7 @@ public class SelPoint implements Cloneable {
     }
 
     // Convert a SelPoint to a string. Contains only basic info.
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("SP " + id);
         sb.append("(" + this.x + ", " + this.y + ")");
@@ -359,6 +360,7 @@ public class SelPoint implements Cloneable {
         removeAllConstraints();
     }
 
+    @Override
     public void finalize() {
         /*
          * System.out.println("SP.finalize called on " + this);

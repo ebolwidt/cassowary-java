@@ -10,7 +10,6 @@ package org.klomp.cassowary.awt;
 import java.awt.BorderLayout;
 import java.awt.Frame;
 
-
 public class Main extends java.applet.Applet {
 
     MainPanel mainPanel;
@@ -19,6 +18,7 @@ public class Main extends java.applet.Applet {
         // Everything is actually done inside init()!
     }
 
+    @Override
     public void init() {
         mainPanel = new MainPanel();
 

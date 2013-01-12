@@ -31,6 +31,7 @@ public class ColocationConstraint extends Constraint {
         bbox.height = 14;
     }
 
+    @Override
     public void draw(Graphics g) {
         x = (int) ((SelPoint) selPointList.elementAt(0)).X().value();
         y = (int) ((SelPoint) selPointList.elementAt(0)).Y().value();
@@ -64,15 +65,18 @@ public class ColocationConstraint extends Constraint {
 
     // Add constraints to solver. Note that for a colocation constraint,
     // the actual constraints are *implicit* in the reuse of a SelPoint.
+    @Override
     public void addConstraints() {
     }
 
     // Remove constraints from solver. As the constraints are implicit, nothing
     // need be done.
+    @Override
     public void removeConstraints() {
     }
 
     // Method to convert constraint to a string
+    @Override
     public String toString() {
         if (selPointList.size() < 1) {
             return new String("ColocationConstr at [], interestedCC = " + ccList);
@@ -85,11 +89,13 @@ public class ColocationConstraint extends Constraint {
 
     // Method to replace one SelPoint with another. As the constraints are
     // implicit, don't need to do anything.
+    @Override
     public void replaceSelPoint(SelPoint oldsp, SelPoint newsp) {
     }
 
     // When a CC associated with a colocation constraint goes away,
     // update the appropriate data structures.
+    @Override
     public void notifyCCRemoval(ConstrComponent cc) {
         if (ccList.contains(cc))
             ccList.removeElement(cc);
@@ -101,6 +107,7 @@ public class ColocationConstraint extends Constraint {
 
     // When a SelPoint associated with a colocation constraint goes away,
     // update the appropriate data structures.
+    @Override
     public void notifySPRemoval(SelPoint sp) {
         if (selPointList.contains(sp)) {
             /*
@@ -113,6 +120,7 @@ public class ColocationConstraint extends Constraint {
     // A colocation constraint is relevant when it's caring about more than
     // one CC. Note that this will prevent a colocation constraint from
     // being imposed on points in the same CC!
+    @Override
     public boolean canDiscard() {
         if ((ccList.size() < 2) || (selPointList.size() < 1))
             return true;

@@ -70,6 +70,7 @@ public class ImageButton extends Button {
     }
 
     // Update function, invoked by repaint()
+    @Override
     public void update(Graphics g) {
         if (img == null) {
             setImg();
@@ -82,6 +83,7 @@ public class ImageButton extends Button {
     }
 
     // Paint function. Just draw the image.
+    @Override
     public void paint(Graphics g) {
         /*
          * System.out.println("IB.paint: Drawing image " + img);
@@ -92,6 +94,7 @@ public class ImageButton extends Button {
         g.drawImage(img, 1, 1, bgColor, ibio);
     }
 
+    @Override
     public Dimension getPreferredSize() {
         return new Dimension(36, 36);
     }

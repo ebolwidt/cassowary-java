@@ -96,6 +96,7 @@ public class EditConstantList {
     }
 
     // Convert an ECL to a string
+    @Override
     public final synchronized String toString() {
         String retstr = new String("ECL: size = " + ec.size());
         retstr = retstr.concat(", Elems = [");

@@ -29,10 +29,12 @@ public class ClEditConstraint extends ClEditOrStayConstraint {
         super(clv);
     }
 
+    @Override
     public boolean isEditConstraint() {
         return true;
     }
 
+    @Override
     public String toString() {
         return "edit" + super.toString();
     }

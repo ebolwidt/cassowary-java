@@ -13,12 +13,13 @@ package org.klomp.cassowary.awt.constraint;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.klomp.cassowary.CDA_G;
+import org.klomp.cassowary.CLInternalError;
 import org.klomp.cassowary.ClSimplexSolver;
 import org.klomp.cassowary.ConstraintNotFoundException;
-import org.klomp.cassowary.CLInternalError;
 import org.klomp.cassowary.awt.component.ConstrComponent;
 import org.klomp.cassowary.awt.component.SelPoint;
 import org.klomp.cassowary.clconstraint.ClLinearInequality;
@@ -26,7 +27,7 @@ import org.klomp.cassowary.clconstraint.ClLinearInequality;
 public abstract class AdjacencyConstraint extends Constraint {
 
     // Vector of ClLinearInequality constraints upon the target's SelPoints
-    protected Vector relConstrs;
+    protected List<ClLinearInequality> relConstrs;
 
     public AdjacencyConstraint(ClSimplexSolver solver, ConstrComponent srcCC, ConstrComponent targetCC) {
 
@@ -48,17 +49,18 @@ public abstract class AdjacencyConstraint extends Constraint {
         }
         srcCC.addInterestedConstr(this);
         targetCC.addInterestedConstr(this);
-        relConstrs = new Vector(targetCC.selPoints.size());
+        relConstrs = new ArrayList<ClLinearInequality>(targetCC.selPoints.size());
         addConstraints();
     }
 
     // Remove constraints from solver.
+    @Override
     public void removeConstraints() {
         int a;
         ClLinearInequality cli;
 
         for (a = 0; a < relConstrs.size(); a++) {
-            cli = (ClLinearInequality) relConstrs.elementAt(a);
+            cli = relConstrs.get(a);
             try {
                 if (cli != null)
                     solver.removeConstraint(cli);
@@ -69,17 +71,16 @@ public abstract class AdjacencyConstraint extends Constraint {
             }
         }
 
-        relConstrs.removeAllElements();
+        relConstrs.clear();
     }
 
     // Method to replace one SelPoint with another.
     // If SP being replaced is in the srcCC, don't do anything.
     // If SP being replaced is in the targetCC, retract old constraint and
     // establish new one on the new SP.
+    @Override
     public void replaceSelPoint(SelPoint oldsp, SelPoint newsp) {
         ConstrComponent srcCC, targetCC;
-        ClLinearInequality cli;
-        int oldIdx;
 
         if (ccList.size() != 2) {
             System.out.println("AdjConstr.repSP: Ill-formed AdjacencyConstraint!");
@@ -105,13 +106,8 @@ public abstract class AdjacencyConstraint extends Constraint {
 
     // When the bounding box of the src CC changes, re-establish constraints.
     // This is necessary as the topmost point may have changed...
+    @Override
     public void notifyCCBBoxChange(ConstrComponent c) {
-        ConstrComponent srcCC, targetCC;
-
-        /*
-         * System.out.println("AdjConstr.notifyCCBBChange: " + this); System.out.println("AdjConstr.notifyCCBBChange: bbox = " +
-         * c.bbox);
-         */
 
         if (ccList.size() != 2) {
             System.out.println("AdjConstr.notifyCCBBoxChange: " + ccList.size() + " CC's, not required 2!");
@@ -122,6 +118,7 @@ public abstract class AdjacencyConstraint extends Constraint {
     }
 
     // An adjacency constraint is relevant only if it has exactly two CC's
+    @Override
     public boolean canDiscard() {
         /*
          * System.out.println("AdjConstr.canDiscard: ccList = " + ccList);
@@ -134,6 +131,7 @@ public abstract class AdjacencyConstraint extends Constraint {
 
     // When one of the CC's the constraint cares about goes away, it can be
     // discarded.
+    @Override
     public void notifyCCRemoval(ConstrComponent c) {
         /*
          * System.out.println("AdjConstr.notifyCCRem: Removing " + c + " from " + ccList);
@@ -142,6 +140,7 @@ public abstract class AdjacencyConstraint extends Constraint {
             ccList.removeElement(c);
     }
 
+    @Override
     public void draw(Graphics g) {
         ConstrComponent srcCC, targetCC;
         int srcx, srcy, targx, targy;

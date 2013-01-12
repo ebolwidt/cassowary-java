@@ -16,10 +16,10 @@ import java.awt.Rectangle;
 import java.util.Vector;
 
 import org.klomp.cassowary.CDA_G;
+import org.klomp.cassowary.CLInternalError;
 import org.klomp.cassowary.ClLinearExpression;
 import org.klomp.cassowary.ClSimplexSolver;
 import org.klomp.cassowary.ConstraintNotFoundException;
-import org.klomp.cassowary.CLInternalError;
 import org.klomp.cassowary.RequiredConstraintFailureException;
 import org.klomp.cassowary.awt.component.ConstrComponent;
 import org.klomp.cassowary.awt.component.SelPoint;
@@ -47,7 +47,6 @@ public class AlignmentConstraint extends Constraint {
         super(solver);
 
         int a;
-        SelPoint sp;
         ConstrComponent cc;
         for (a = 0; a < ccVector.size(); a++) {
             cc = (ConstrComponent) ccVector.elementAt(a);
@@ -70,6 +69,7 @@ public class AlignmentConstraint extends Constraint {
     }
 
     // Remove constraints from solver.
+    @Override
     public void removeConstraints() {
         int a;
         ClLinearEquation cle;
@@ -98,6 +98,7 @@ public class AlignmentConstraint extends Constraint {
 
     // Don't need to do anything if a SelPoint is replaced, as we're just
     // monitoring the bounding boxes.
+    @Override
     public void replaceSelPoint(SelPoint oldsp, SelPoint newsp) {
         /*
          * ConstrComponent srcCC, targetCC; ClLinearEquation cle; int oldIdx;
@@ -125,24 +126,16 @@ public class AlignmentConstraint extends Constraint {
 
     // When the bounding box of the src CC changes, re-establish constraints.
     // This is necessary as the edge point has definitely changed.
+    @Override
     public void notifyCCBBoxChange(ConstrComponent c) {
-        ConstrComponent srcCC, targetCC;
-
-        /*
-         * System.out.println("AlignConstr.notifyCCBBChange: " + this); System.out.println("AlignConstr.notifyCCBBChange: bbox = "
-         * + c.bbox);
-         */
-
         // Re-establish constraints, to be safe
         removeConstraints();
         addConstraints();
     }
 
     // An alignment constraint is relevant only if it has more than 1 CC
+    @Override
     public boolean canDiscard() {
-        /*
-         * System.out.println("AlignConstr.canDiscard: ccList = " + ccList);
-         */
         if (ccList.size() < 2)
             return true;
 
@@ -153,10 +146,8 @@ public class AlignmentConstraint extends Constraint {
     // discarded.
     // Make sure that if the going-away CC contained the targetSP,
     // pick a new targetSP!
+    @Override
     public void notifyCCRemoval(ConstrComponent c) {
-        /*
-         * System.out.println("AlignConstr.notifyCCRem: Removing " + c + " from " + ccList);
-         */
         if (ccList.contains(c))
             ccList.removeElement(c);
 
@@ -167,6 +158,7 @@ public class AlignmentConstraint extends Constraint {
 
     }
 
+    @Override
     public void draw(Graphics g) {
         ConstrComponent cc;
         int lowx, lowy, highx, highy, a, px, py;
@@ -277,6 +269,7 @@ public class AlignmentConstraint extends Constraint {
     // Method to create (if necessary) and add the constraints to the solver.
     // Sets up equality constraints for the appropriate direction (X or Y)
     // on the appropriate edge point of each CC.
+    @Override
     public void addConstraints() {
         /*
          * System.out.println("AlignConstr.addConstr: invoked");
@@ -406,6 +399,7 @@ public class AlignmentConstraint extends Constraint {
     }
 
     // Helper method to convert constraint to a string
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer("AlignConstr: targetSP = " + targetSP);
         sb.append("\nccList = ");

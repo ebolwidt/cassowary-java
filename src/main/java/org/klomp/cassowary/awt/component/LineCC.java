@@ -41,11 +41,13 @@ public class LineCC extends ConstrComponent {
     }
 
     // p2 is the end SelPoint, for placement purposes
+    @Override
     public SelPoint getEndSP() {
         return p2;
     }
 
     // Implementation of draw method
+    @Override
     public void draw(Graphics g) {
         super.draw(g);
         g.setColor(c);
@@ -55,6 +57,7 @@ public class LineCC extends ConstrComponent {
     // Performs necessary updates when the SelPoint at index idx is to be
     // replaced with newsp. Just check to see which one of the endpoints
     // got replaced, and update p1 or p2 accordingly.
+    @Override
     protected void notifySelPointReplacement(int idx, SelPoint newsp) {
         SelPoint sp = (SelPoint) selPoints.elementAt(idx);
 
@@ -78,6 +81,7 @@ public class LineCC extends ConstrComponent {
     }
 
     // Return a string version of the LineCC
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer(super.toString());
         sb.append(" => ");
@@ -86,6 +90,7 @@ public class LineCC extends ConstrComponent {
     }
 
     // Clean-up function
+    @Override
     public void finalize() {
         /*
          * System.out.println("LineCC.finalize called on " + this);
