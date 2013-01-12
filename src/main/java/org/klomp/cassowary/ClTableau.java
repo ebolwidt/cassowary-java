@@ -12,17 +12,40 @@
 package org.klomp.cassowary;
 
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 
 class ClTableau extends CL {
+    // _columns is a mapping from variables which occur in expressions to the
+    // set of basic variables whose expressions contain them
+    // i.e., it's a mapping from variables in expressions (a column) to the
+    // set of rows that contain them
+    protected Hashtable<ClAbstractVariable, Set<ClAbstractVariable>> _columns; // From ClAbstractVariable to Set of variables
+
+    // _rows maps basic variables to the expressions for that row in the tableau
+    protected Hashtable<ClAbstractVariable, ClLinearExpression> _rows; // From ClAbstractVariable to ClLinearExpression
+
+    // the collection of basic variables that have infeasible rows
+    // (used when reoptimizing)
+    protected Set<ClAbstractVariable> _infeasibleRows; // Set of ClAbstractVariable-s
+
+    // the set of rows where the basic variable is external
+    // this was added to the Java/C++ versions to reduce time in setExternalVariables()
+    protected Set<ClVariable> _externalRows; // Set of ClVariable-s
+
+    // the set of external variables which are parametric
+    // this was added to the Java/C++ versions to reduce time in setExternalVariables()
+    protected Set<ClVariable> _externalParametricVars; // Set of ClVariable-s
+
     // ctr is protected, since this only supports an ADT for
     // the ClSimplexSolved class
     protected ClTableau() {
-        _columns = new Hashtable();
-        _rows = new Hashtable();
-        _infeasibleRows = new Set();
-        _externalRows = new Set();
-        _externalParametricVars = new Set();
+        _columns = new Hashtable<ClAbstractVariable, Set<ClAbstractVariable>>();
+        _rows = new Hashtable<ClAbstractVariable, ClLinearExpression>();
+        _infeasibleRows = new HashSet<ClAbstractVariable>();
+        _externalRows = new HashSet<ClVariable>();
+        _externalParametricVars = new HashSet<ClVariable>();
     }
 
     // Variable v has been removed from an expression. If the
@@ -33,7 +56,7 @@ class ClTableau extends CL {
         if (fTraceOn)
             fnenterprint("noteRemovedVariable: " + v + ", " + subject);
         if (subject != null) {
-            ((Set) _columns.get(v)).remove(subject);
+            _columns.get(v).remove(subject);
         }
     }
 
@@ -62,11 +85,12 @@ class ClTableau extends CL {
         return retstr.toString();
     }
 
+    @Override
     public String toString() {
         StringBuffer bstr = new StringBuffer("Tableau:\n");
         for (Enumeration e = _rows.keys(); e.hasMoreElements();) {
             ClAbstractVariable clv = (ClAbstractVariable) e.nextElement();
-            ClLinearExpression expr = (ClLinearExpression) _rows.get(clv);
+            ClLinearExpression expr = _rows.get(clv);
             bstr.append(clv.toString());
             bstr.append(" <==> ");
             bstr.append(expr.toString());
@@ -92,10 +116,10 @@ class ClTableau extends CL {
     // the set of rows stored at _columns[param_var],
     // creating a new set if needed
     private final void insertColVar(ClAbstractVariable param_var, ClAbstractVariable rowvar) {
-        Set rowset = (Set) _columns.get(param_var);
+        Set<ClAbstractVariable> rowset = _columns.get(param_var);
         if (rowset == null)
-            _columns.put(param_var, rowset = new Set());
-        rowset.insert(rowvar);
+            _columns.put(param_var, rowset = new HashSet<ClAbstractVariable>());
+        rowset.add(rowvar);
     }
 
     // Add v=expr to the tableau, update column cross indices
@@ -113,12 +137,12 @@ class ClTableau extends CL {
 
         for (ClAbstractVariable clv : expr.terms().keySet()) {
             insertColVar(clv, var);
-            if (clv.isExternal()) {
-                _externalParametricVars.insert(clv);
+            if (clv.isExternal() && clv instanceof ClVariable) {
+                _externalParametricVars.add((ClVariable) clv);
             }
         }
-        if (var.isExternal()) {
-            _externalRows.insert(var);
+        if (var.isExternal() && var instanceof ClVariable) {
+            _externalRows.add((ClVariable) var);
         }
         if (fTraceOn)
             traceprint(this.toString());
@@ -131,12 +155,11 @@ class ClTableau extends CL {
             fnenterprint("removeColumn:" + var);
         // remove the rows with the variables in varset
 
-        Set rows = (Set) _columns.remove(var);
+        Set<ClAbstractVariable> rows = _columns.remove(var);
 
         if (rows != null) {
-            for (Enumeration e = rows.elements(); e.hasMoreElements();) {
-                ClAbstractVariable clv = (ClAbstractVariable) e.nextElement();
-                ClLinearExpression expr = (ClLinearExpression) _rows.get(clv);
+            for (ClAbstractVariable clv : rows) {
+                ClLinearExpression expr = _rows.get(clv);
                 expr.terms().remove(var);
             }
         } else {
@@ -156,14 +179,14 @@ class ClTableau extends CL {
         if (fTraceOn)
             fnenterprint("removeRow:" + var);
 
-        ClLinearExpression expr = (ClLinearExpression) _rows.get(var);
+        ClLinearExpression expr = _rows.get(var);
         assert expr != null;
 
         // For each variable in this expression, update
         // the column mapping and remove the variable from the list
         // of rows it is known to be in
         for (ClAbstractVariable clv : expr.terms().keySet()) {
-            Set varset = (Set) _columns.get(clv);
+            Set<ClAbstractVariable> varset = _columns.get(clv);
             if (varset != null) {
                 if (fTraceOn)
                     debugprint("removing from varset " + var);
@@ -190,18 +213,17 @@ class ClTableau extends CL {
         if (fTraceOn)
             traceprint(this.toString());
 
-        Set varset = (Set) _columns.get(oldVar);
-        for (Enumeration e = varset.elements(); e.hasMoreElements();) {
-            ClAbstractVariable v = (ClAbstractVariable) e.nextElement();
-            ClLinearExpression row = (ClLinearExpression) _rows.get(v);
+        Set<ClAbstractVariable> varset = _columns.get(oldVar);
+        for (ClAbstractVariable v : varset) {
+            ClLinearExpression row = _rows.get(v);
             row.substituteOut(oldVar, expr, v, this);
             if (v.isRestricted() && row.constant() < 0.0) {
-                _infeasibleRows.insert(v);
+                _infeasibleRows.add(v);
             }
         }
 
-        if (oldVar.isExternal()) {
-            _externalRows.insert(oldVar);
+        if (oldVar.isExternal() && oldVar instanceof ClVariable) {
+            _externalRows.add((ClVariable) oldVar);
             _externalParametricVars.remove(oldVar);
         }
         _columns.remove(oldVar);
@@ -222,28 +244,7 @@ class ClTableau extends CL {
 
     protected final ClLinearExpression rowExpression(ClAbstractVariable v) {
         // if (fTraceOn) fnenterprint("rowExpression:" + v);
-        return (ClLinearExpression) _rows.get(v);
+        return _rows.get(v);
     }
-
-    // _columns is a mapping from variables which occur in expressions to the
-    // set of basic variables whose expressions contain them
-    // i.e., it's a mapping from variables in expressions (a column) to the
-    // set of rows that contain them
-    protected Hashtable _columns; // From ClAbstractVariable to Set of variables
-
-    // _rows maps basic variables to the expressions for that row in the tableau
-    protected Hashtable _rows; // From ClAbstractVariable to ClLinearExpression
-
-    // the collection of basic variables that have infeasible rows
-    // (used when reoptimizing)
-    protected Set _infeasibleRows; // Set of ClAbstractVariable-s
-
-    // the set of rows where the basic variable is external
-    // this was added to the Java/C++ versions to reduce time in setExternalVariables()
-    protected Set _externalRows; // Set of ClVariable-s
-
-    // the set of external variables which are parametric
-    // this was added to the Java/C++ versions to reduce time in setExternalVariables()
-    protected Set _externalParametricVars; // Set of ClVariable-s
 
 }
