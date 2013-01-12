@@ -12,10 +12,12 @@
 
 package org.klomp.cassowary;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -29,8 +31,8 @@ public class ClSimplexSolver extends ClTableau {
 
     // the arrays of positive and negative error vars for the stay constraints
     // (need both positive and negative since they have only non-negative values)
-    private Vector _stayMinusErrorVars;
-    private Vector _stayPlusErrorVars;
+    private List<ClAbstractVariable> _stayMinusErrorVars;
+    private List<ClAbstractVariable> _stayPlusErrorVars;
 
     // give error variables for a non required constraint,
     // maps to ClSlackVariable-s
@@ -53,7 +55,7 @@ public class ClSimplexSolver extends ClTableau {
     private long _artificialCounter;
     private long _dummyCounter;
 
-    private Vector _resolve_pair;
+    private List<ClDouble> _resolve_pair;
 
     private double _epsilon;
 
@@ -64,14 +66,14 @@ public class ClSimplexSolver extends ClTableau {
 
     // Ctr initializes the fields, and creates the objective row
     public ClSimplexSolver() {
-        _stayMinusErrorVars = new Vector();
-        _stayPlusErrorVars = new Vector();
+        _stayMinusErrorVars = new ArrayList<ClAbstractVariable>();
+        _stayPlusErrorVars = new ArrayList<ClAbstractVariable>();
         _errorVars = new Hashtable();
         _markerVars = new Hashtable();
 
-        _resolve_pair = new Vector(2);
-        _resolve_pair.addElement(new ClDouble(0));
-        _resolve_pair.addElement(new ClDouble(0));
+        _resolve_pair = new ArrayList<ClDouble>(2);
+        _resolve_pair.add(new ClDouble(0));
+        _resolve_pair.add(new ClDouble(0));
 
         _objective = new ClObjectiveVariable("Z");
 
@@ -252,13 +254,15 @@ public class ClSimplexSolver extends ClTableau {
     // increasing weights so that the solver will try to satisfy the x
     // and y stays on the same point, rather than the x stay on one and
     // the y stay on another.
-    public final ClSimplexSolver addPointStays(Vector listOfPoints) throws RequiredConstraintFailureException, CLInternalError {
+    public final ClSimplexSolver addPointStays(List<ClPoint> listOfPoints) throws RequiredConstraintFailureException,
+            CLInternalError {
         if (fTraceOn)
             fnenterprint("addPointStays" + listOfPoints);
         double weight = 1.0;
         final double multiplier = 2.0;
-        for (int i = 0; i < listOfPoints.size(); i++) {
-            addPointStay((ClPoint) listOfPoints.elementAt(i), weight);
+        int size = listOfPoints.size();
+        for (int i = 0; i < size; i++) {
+            addPointStay(listOfPoints.get(i), weight);
             weight *= multiplier;
         }
         return this;
@@ -435,9 +439,10 @@ public class ClSimplexSolver extends ClTableau {
 
         if (cn.isStayConstraint()) {
             if (eVars != null) {
-                for (int i = 0; i < _stayPlusErrorVars.size(); i++) {
-                    eVars.remove(_stayPlusErrorVars.elementAt(i));
-                    eVars.remove(_stayMinusErrorVars.elementAt(i));
+                int size = _stayPlusErrorVars.size();
+                for (int i = 0; i < size; i++) {
+                    eVars.remove(_stayPlusErrorVars.get(i));
+                    eVars.remove(_stayMinusErrorVars.get(i));
                 }
             }
         } else if (cn.isEditConstraint()) {
@@ -474,7 +479,7 @@ public class ClSimplexSolver extends ClTableau {
     // of a list of edits and then try to resolve with this function
     // (you'll get the wrong answer, because the indices will be wrong
     // in the ClEditInfo objects)
-    public final void resolve(Vector newEditConstants) throws CLInternalError {
+    public final void resolve(List<ClDouble> newEditConstants) throws CLInternalError {
         if (fTraceOn)
             fnenterprint("resolve" + newEditConstants);
         for (Enumeration e = _editVarMap.keys(); e.hasMoreElements();) {
@@ -483,7 +488,7 @@ public class ClSimplexSolver extends ClTableau {
             int i = cei.Index();
             try {
                 if (i < newEditConstants.size())
-                    suggestValue(v, ((ClDouble) newEditConstants.elementAt(i)).doubleValue());
+                    suggestValue(v, newEditConstants.get(i).doubleValue());
             } catch (CLException err) {
                 throw new CLInternalError("Error during resolve");
             }
@@ -493,8 +498,8 @@ public class ClSimplexSolver extends ClTableau {
 
     // Convenience function for resolve-s of two variables
     public final void resolve(double x, double y) throws CLInternalError {
-        ((ClDouble) _resolve_pair.elementAt(0)).setValue(x);
-        ((ClDouble) _resolve_pair.elementAt(1)).setValue(y);
+        _resolve_pair.get(0).setValue(x);
+        _resolve_pair.get(1).setValue(y);
         resolve(_resolve_pair);
     }
 
@@ -761,7 +766,7 @@ public class ClSimplexSolver extends ClTableau {
                 // we haven't found an restricted variable yet
                 if (v.isRestricted()) {
                     if (!foundNewRestricted && !v.isDummy() && c < 0.0) {
-                        final Set col = _columns.get(v);
+                        final Set<ClAbstractVariable> col = _columns.get(v);
                         if (col == null || (col.size() == 1 && columnsHasKey(_objective))) {
                             subject = v;
                             foundNewRestricted = true;
@@ -967,8 +972,8 @@ public class ClSimplexSolver extends ClTableau {
                 insertErrorVar(cn, eminus);
                 insertErrorVar(cn, eplus);
                 if (cn.isStayConstraint()) {
-                    _stayPlusErrorVars.addElement(eplus);
-                    _stayMinusErrorVars.addElement(eminus);
+                    _stayPlusErrorVars.add(eplus);
+                    _stayMinusErrorVars.add(eminus);
                 } else if (cn.isEditConstraint()) {
                     eplus_eminus.addElement(eplus);
                     eplus_eminus.addElement(eminus);
@@ -1075,10 +1080,11 @@ public class ClSimplexSolver extends ClTableau {
     // occur only in the expression for that basic error variable.
     // Reset the constant in this expression to 0.
     protected final void resetStayConstants() {
-        for (int i = 0; i < _stayPlusErrorVars.size(); i++) {
-            ClLinearExpression expr = rowExpression((ClAbstractVariable) _stayPlusErrorVars.elementAt(i));
+        int size = _stayPlusErrorVars.size();
+        for (int i = 0; i < size; i++) {
+            ClLinearExpression expr = rowExpression(_stayPlusErrorVars.get(i));
             if (expr == null)
-                expr = rowExpression((ClAbstractVariable) _stayMinusErrorVars.elementAt(i));
+                expr = rowExpression(_stayMinusErrorVars.get(i));
             if (expr != null)
                 expr.set_constant(0.0);
         }
@@ -1095,11 +1101,6 @@ public class ClSimplexSolver extends ClTableau {
     // values are just implicit in the tableu -- so we don't need to set
     // them.
     protected final void setExternalVariables() {
-        if (fTraceOn)
-            fnenterprint("setExternalVariables:");
-        if (fTraceOn)
-            traceprint(this.toString());
-
         for (ClVariable v : _externalParametricVars) {
             if (rowExpression(v) != null) {
                 System.err.println("Error: variable" + v + " in _externalParametricVars is basic");
@@ -1110,10 +1111,6 @@ public class ClSimplexSolver extends ClTableau {
 
         for (ClVariable v : _externalRows) {
             ClLinearExpression expr = rowExpression(v);
-            if (fTraceOn)
-                debugprint("v == " + v);
-            if (fTraceOn)
-                debugprint("expr == " + expr);
             v.change_value(expr.constant());
         }
 

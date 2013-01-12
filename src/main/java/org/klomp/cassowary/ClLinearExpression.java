@@ -17,14 +17,14 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class ClLinearExpression extends CL {
-    private ClDouble _constant;
+    private double _constant;
     private Map<ClAbstractVariable, ClDouble> _terms; // from ClVariable to ClDouble
 
     public ClLinearExpression(ClAbstractVariable clv, double value, double constant) {
         if (CL.fGC)
             System.err.println("new ClLinearExpression");
 
-        _constant = new ClDouble(constant);
+        _constant = constant;
         _terms = new IdentityHashMap<ClAbstractVariable, ClDouble>(1);
         if (clv != null)
             _terms.put(clv, new ClDouble(value));
@@ -46,11 +46,15 @@ public class ClLinearExpression extends CL {
         this(clv, 1, 0);
     }
 
-    // for use by the clone method
-    protected ClLinearExpression(ClDouble constant, Map<ClAbstractVariable, ClDouble> terms) {
+    // // for use by the clone method
+    // protected ClLinearExpression(ClDouble constant, Map<ClAbstractVariable, ClDouble> terms) {
+    //
+    // }
+
+    protected ClLinearExpression(double constant, Map<ClAbstractVariable, ClDouble> terms) {
         if (CL.fGC)
             System.err.println("clone ClLinearExpression");
-        _constant = constant.clone();
+        _constant = constant;
         _terms = new IdentityHashMap<ClAbstractVariable, ClDouble>();
         // need to unalias the ClDouble-s that we clone (do a deep clone)
         for (Map.Entry<ClAbstractVariable, ClDouble> e : terms.entrySet()) {
@@ -59,7 +63,7 @@ public class ClLinearExpression extends CL {
     }
 
     public ClLinearExpression multiplyMe(double x) {
-        _constant.setValue(_constant.doubleValue() * x);
+        _constant *= x;
 
         for (ClDouble cld : _terms.values()) {
             cld.setValue(cld.doubleValue() * x);
@@ -78,11 +82,11 @@ public class ClLinearExpression extends CL {
 
     public final ClLinearExpression times(ClLinearExpression expr) throws NonlinearExpressionException {
         if (isConstant()) {
-            return expr.times(_constant.doubleValue());
+            return expr.times(_constant);
         } else if (!expr.isConstant()) {
             throw new NonlinearExpressionException();
         }
-        return times(expr._constant.doubleValue());
+        return times(expr._constant);
     }
 
     public final ClLinearExpression plus(ClLinearExpression expr) {
@@ -112,14 +116,14 @@ public class ClLinearExpression extends CL {
         if (!expr.isConstant()) {
             throw new NonlinearExpressionException();
         }
-        return divide(expr._constant.doubleValue());
+        return divide(expr._constant);
     }
 
     public final ClLinearExpression divFrom(ClLinearExpression expr) throws NonlinearExpressionException {
-        if (!isConstant() || CL.approx(_constant.doubleValue(), 0.0)) {
+        if (!isConstant() || CL.approx(_constant, 0.0)) {
             throw new NonlinearExpressionException();
         }
-        return expr.divide(_constant.doubleValue());
+        return expr.divide(_constant);
     }
 
     public final ClLinearExpression subtractFrom(ClLinearExpression expr) {
@@ -332,11 +336,11 @@ public class ClLinearExpression extends CL {
     }
 
     public final double constant() {
-        return _constant.doubleValue();
+        return _constant;
     }
 
     public final void set_constant(double c) {
-        _constant.setValue(c);
+        _constant = c;
     }
 
     public final Map<ClAbstractVariable, ClDouble> terms() {
@@ -344,7 +348,7 @@ public class ClLinearExpression extends CL {
     }
 
     public final void incrementConstant(double c) {
-        _constant.setValue(_constant.doubleValue() + c);
+        _constant += c;
     }
 
     public final boolean isConstant() {
@@ -356,8 +360,8 @@ public class ClLinearExpression extends CL {
         StringBuffer bstr = new StringBuffer();
         Iterator<ClAbstractVariable> e = _terms.keySet().iterator();
 
-        if (!CL.approx(_constant.doubleValue(), 0.0) || _terms.size() == 0) {
-            bstr.append(_constant.toString());
+        if (!CL.approx(_constant, 0.0) || _terms.size() == 0) {
+            bstr.append(_constant);
         } else {
             if (_terms.size() == 0) {
                 return bstr.toString();
