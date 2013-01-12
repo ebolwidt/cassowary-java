@@ -38,12 +38,13 @@ public class ClSymbolicWeight {
 
     public static final ClSymbolicWeight clsZero = new ClSymbolicWeight(0.0, 0.0, 0.0);
 
-    public Object clone() {
+    @Override
+    public ClSymbolicWeight clone() {
         return new ClSymbolicWeight(_values);
     }
 
     public ClSymbolicWeight times(double n) {
-        ClSymbolicWeight clsw = (ClSymbolicWeight) clone();
+        ClSymbolicWeight clsw = clone();
         for (int i = 0; i < _values.length; i++) {
             clsw._values[i] *= n;
         }
@@ -52,7 +53,7 @@ public class ClSymbolicWeight {
 
     public ClSymbolicWeight divideBy(double n) {
         // assert(n != 0);
-        ClSymbolicWeight clsw = (ClSymbolicWeight) clone();
+        ClSymbolicWeight clsw = clone();
         for (int i = 0; i < _values.length; i++) {
             clsw._values[i] /= n;
         }
@@ -62,7 +63,7 @@ public class ClSymbolicWeight {
     public ClSymbolicWeight add(ClSymbolicWeight cl) {
         // assert(cl.cLevels() == cLevels());
 
-        ClSymbolicWeight clsw = (ClSymbolicWeight) clone();
+        ClSymbolicWeight clsw = clone();
         for (int i = 0; i < _values.length; i++) {
             clsw._values[i] += cl._values[i];
         }
@@ -72,7 +73,7 @@ public class ClSymbolicWeight {
     public ClSymbolicWeight subtract(ClSymbolicWeight cl) {
         // assert(cl.cLevels() == cLevels());
 
-        ClSymbolicWeight clsw = (ClSymbolicWeight) clone();
+        ClSymbolicWeight clsw = clone();
         for (int i = 0; i < _values.length; i++) {
             clsw._values[i] -= cl._values[i];
         }
@@ -122,7 +123,6 @@ public class ClSymbolicWeight {
     }
 
     public double asDouble() {
-        ClSymbolicWeight clsw = (ClSymbolicWeight) clone();
         double sum = 0;
         double factor = 1;
         double multiplier = 1000;
@@ -133,6 +133,7 @@ public class ClSymbolicWeight {
         return sum;
     }
 
+    @Override
     public String toString() {
         StringBuffer bstr = new StringBuffer("[");
         for (int i = 0; i < _values.length - 1; i++) {

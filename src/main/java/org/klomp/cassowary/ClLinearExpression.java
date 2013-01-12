@@ -67,12 +67,13 @@ public class ClLinearExpression extends CL {
         return this;
     }
 
-    public final Object clone() {
+    @Override
+    public final ClLinearExpression clone() {
         return new ClLinearExpression(_constant, _terms);
     }
 
     public final ClLinearExpression times(double x) {
-        return ((ClLinearExpression) clone()).multiplyMe(x);
+        return clone().multiplyMe(x);
     }
 
     public final ClLinearExpression times(ClLinearExpression expr) throws NonlinearExpressionException {
@@ -85,19 +86,19 @@ public class ClLinearExpression extends CL {
     }
 
     public final ClLinearExpression plus(ClLinearExpression expr) {
-        return ((ClLinearExpression) clone()).addExpression(expr, 1.0);
+        return clone().addExpression(expr, 1.0);
     }
 
     public final ClLinearExpression plus(ClVariable var) throws NonlinearExpressionException {
-        return ((ClLinearExpression) clone()).addVariable(var, 1.0);
+        return clone().addVariable(var, 1.0);
     }
 
     public final ClLinearExpression minus(ClLinearExpression expr) {
-        return ((ClLinearExpression) clone()).addExpression(expr, -1.0);
+        return clone().addExpression(expr, -1.0);
     }
 
     public final ClLinearExpression minus(ClVariable var) throws NonlinearExpressionException {
-        return ((ClLinearExpression) clone()).addVariable(var, -1.0);
+        return clone().addVariable(var, -1.0);
     }
 
     public final ClLinearExpression divide(double x) throws NonlinearExpressionException {
@@ -352,6 +353,7 @@ public class ClLinearExpression extends CL {
         return _terms.size() == 0;
     }
 
+    @Override
     public final String toString() {
         StringBuffer bstr = new StringBuffer();
         Iterator<ClAbstractVariable> e = _terms.keySet().iterator();
@@ -382,11 +384,13 @@ public class ClLinearExpression extends CL {
         return e1.minus(e2);
     }
 
-    public final static ClLinearExpression Times(ClLinearExpression e1, ClLinearExpression e2) throws NonlinearExpressionException {
+    public final static ClLinearExpression Times(ClLinearExpression e1, ClLinearExpression e2)
+            throws NonlinearExpressionException {
         return e1.times(e2);
     }
 
-    public final static ClLinearExpression Divide(ClLinearExpression e1, ClLinearExpression e2) throws NonlinearExpressionException {
+    public final static ClLinearExpression Divide(ClLinearExpression e1, ClLinearExpression e2)
+            throws NonlinearExpressionException {
         return e1.divide(e2);
     }
 
