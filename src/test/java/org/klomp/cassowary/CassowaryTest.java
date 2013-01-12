@@ -3,12 +3,14 @@ package org.klomp.cassowary;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+import org.klomp.cassowary.clconstraint.ClLinearEquation;
+import org.klomp.cassowary.clconstraint.ClLinearInequality;
 
 public class CassowaryTest {
     private static double EPSILON = 1.0e-8;
 
     @Test
-    public void simple1() throws ExCLInternalError, ExCLRequiredFailure {
+    public void simple1() throws CLInternalError, RequiredConstraintFailureException {
         ClVariable x = new ClVariable(167);
         ClVariable y = new ClVariable(2);
         ClSimplexSolver solver = new ClSimplexSolver();
@@ -18,7 +20,7 @@ public class CassowaryTest {
     }
 
     @Test
-    public void justStay1() throws ExCLInternalError, ExCLRequiredFailure {
+    public void justStay1() throws CLInternalError, RequiredConstraintFailureException {
         ClVariable x = new ClVariable(5);
         ClVariable y = new ClVariable(10);
         ClSimplexSolver solver = new ClSimplexSolver();
@@ -30,7 +32,7 @@ public class CassowaryTest {
     }
 
     @Test
-    public void addDelete1() throws ExCLInternalError, ExCLRequiredFailure, ExCLConstraintNotFound {
+    public void addDelete1() throws CLInternalError, RequiredConstraintFailureException, ConstraintNotFoundException {
         ClVariable x = new ClVariable("x");
         ClSimplexSolver solver = new ClSimplexSolver();
 
@@ -63,7 +65,7 @@ public class CassowaryTest {
     }
 
     @Test
-    public void addDelete2() throws ExCLInternalError, ExCLRequiredFailure, ExCLConstraintNotFound, ExCLNonlinearExpression {
+    public void addDelete2() throws CLInternalError, RequiredConstraintFailureException, ConstraintNotFoundException, NonlinearExpressionException {
         ClVariable x = new ClVariable("x");
         ClVariable y = new ClVariable("y");
         ClSimplexSolver solver = new ClSimplexSolver();
@@ -97,7 +99,7 @@ public class CassowaryTest {
     }
 
     @Test
-    public void casso1() throws ExCLInternalError, ExCLRequiredFailure {
+    public void casso1() throws CLInternalError, RequiredConstraintFailureException {
         ClVariable x = new ClVariable("x");
         ClVariable y = new ClVariable("y");
         ClSimplexSolver solver = new ClSimplexSolver();
@@ -115,24 +117,24 @@ public class CassowaryTest {
         }
     }
 
-    @Test(expected = ExCLRequiredFailure.class)
-    public void inconsistent1() throws ExCLInternalError, ExCLRequiredFailure {
+    @Test(expected = RequiredConstraintFailureException.class)
+    public void inconsistent1() throws CLInternalError, RequiredConstraintFailureException {
         ClVariable x = new ClVariable("x");
         ClSimplexSolver solver = new ClSimplexSolver();
 
         solver.addConstraint(new ClLinearEquation(x, 10.0)).addConstraint(new ClLinearEquation(x, 5.0));
     }
 
-    @Test(expected = ExCLRequiredFailure.class)
-    public void inconsistent2() throws ExCLInternalError, ExCLRequiredFailure {
+    @Test(expected = RequiredConstraintFailureException.class)
+    public void inconsistent2() throws CLInternalError, RequiredConstraintFailureException {
         ClVariable x = new ClVariable("x");
         ClSimplexSolver solver = new ClSimplexSolver();
 
         solver.addConstraint(new ClLinearInequality(x, CL.GEQ, 10.0)).addConstraint(new ClLinearInequality(x, CL.LEQ, 5.0));
     }
 
-    @Test(expected = ExCLRequiredFailure.class)
-    public void inconsistent3() throws ExCLInternalError, ExCLRequiredFailure {
+    @Test(expected = RequiredConstraintFailureException.class)
+    public void inconsistent3() throws CLInternalError, RequiredConstraintFailureException {
 
         ClVariable w = new ClVariable("w");
         ClVariable x = new ClVariable("x");
@@ -146,7 +148,7 @@ public class CassowaryTest {
     }
 
     @Test
-    public void multiedit() throws ExCLInternalError, ExCLRequiredFailure, ExCLError {
+    public void multiedit() throws CLInternalError, RequiredConstraintFailureException, CLException {
         ClVariable x = new ClVariable("x");
         ClVariable y = new ClVariable("y");
         ClVariable w = new ClVariable("w");

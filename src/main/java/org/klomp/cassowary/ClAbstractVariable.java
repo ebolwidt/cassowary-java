@@ -12,6 +12,12 @@
 package org.klomp.cassowary;
 
 public abstract class ClAbstractVariable {
+    private String _name;
+
+    private int hash_code;
+
+    private static int iVariableNumber;
+
     public ClAbstractVariable(String name) {
         hash_code = iVariableNumber;
         _name = name;
@@ -48,20 +54,16 @@ public abstract class ClAbstractVariable {
 
     public abstract boolean isRestricted();
 
+    @Override
     public abstract String toString();
 
     public static int numCreated() {
         return iVariableNumber;
     }
 
+    @Override
     public final int hashCode() {
         return hash_code;
     }
-
-    private String _name;
-
-    private int hash_code;
-
-    private static int iVariableNumber;
 
 }

@@ -78,35 +78,35 @@ public class CL {
         return e1.minus(new ClLinearExpression(e2));
     }
 
-    public static ClLinearExpression Times(ClLinearExpression e1, ClLinearExpression e2) throws ExCLNonlinearExpression {
+    public static ClLinearExpression Times(ClLinearExpression e1, ClLinearExpression e2) throws NonlinearExpressionException {
         return e1.times(e2);
     }
 
-    public static ClLinearExpression Times(ClLinearExpression e1, ClVariable e2) throws ExCLNonlinearExpression {
+    public static ClLinearExpression Times(ClLinearExpression e1, ClVariable e2) throws NonlinearExpressionException {
         return e1.times(new ClLinearExpression(e2));
     }
 
-    public static ClLinearExpression Times(ClVariable e1, ClLinearExpression e2) throws ExCLNonlinearExpression {
+    public static ClLinearExpression Times(ClVariable e1, ClLinearExpression e2) throws NonlinearExpressionException {
         return (new ClLinearExpression(e1)).times(e2);
     }
 
-    public static ClLinearExpression Times(ClLinearExpression e1, double e2) throws ExCLNonlinearExpression {
+    public static ClLinearExpression Times(ClLinearExpression e1, double e2) throws NonlinearExpressionException {
         return e1.times(new ClLinearExpression(e2));
     }
 
-    public static ClLinearExpression Times(double e1, ClLinearExpression e2) throws ExCLNonlinearExpression {
+    public static ClLinearExpression Times(double e1, ClLinearExpression e2) throws NonlinearExpressionException {
         return (new ClLinearExpression(e1)).times(e2);
     }
 
-    public static ClLinearExpression Times(double n, ClVariable clv) throws ExCLNonlinearExpression {
+    public static ClLinearExpression Times(double n, ClVariable clv) throws NonlinearExpressionException {
         return (new ClLinearExpression(clv, n));
     }
 
-    public static ClLinearExpression Times(ClVariable clv, double n) throws ExCLNonlinearExpression {
+    public static ClLinearExpression Times(ClVariable clv, double n) throws NonlinearExpressionException {
         return (new ClLinearExpression(clv, n));
     }
 
-    public static ClLinearExpression Divide(ClLinearExpression e1, ClLinearExpression e2) throws ExCLNonlinearExpression {
+    public static ClLinearExpression Divide(ClLinearExpression e1, ClLinearExpression e2) throws NonlinearExpressionException {
         return e1.divide(e2);
     }
 

@@ -21,14 +21,14 @@ import java.awt.Event;
 import java.awt.Graphics;
 
 import org.klomp.cassowary.CL;
-import org.klomp.cassowary.ClLinearEquation;
+import org.klomp.cassowary.CLException;
+import org.klomp.cassowary.CLInternalError;
 import org.klomp.cassowary.ClLinearExpression;
-import org.klomp.cassowary.ClLinearInequality;
 import org.klomp.cassowary.ClSimplexSolver;
-import org.klomp.cassowary.ExCLError;
-import org.klomp.cassowary.ExCLInternalError;
-import org.klomp.cassowary.ExCLNonlinearExpression;
-import org.klomp.cassowary.ExCLRequiredFailure;
+import org.klomp.cassowary.NonlinearExpressionException;
+import org.klomp.cassowary.RequiredConstraintFailureException;
+import org.klomp.cassowary.clconstraint.ClLinearEquation;
+import org.klomp.cassowary.clconstraint.ClLinearInequality;
 
 public class QuadDemo extends Applet {
     DraggableBox db[]; // Line endpoints
@@ -37,6 +37,7 @@ public class QuadDemo extends Applet {
 
     ClSimplexSolver solver;
 
+    @Override
     public void init() {
 
         solver = new ClSimplexSolver();
@@ -152,11 +153,11 @@ public class QuadDemo extends Applet {
             solver.addConstraint(new ClLinearInequality(db[3].X(), CL.LEQ, width));
             solver.addConstraint(new ClLinearInequality(db[3].Y(), CL.LEQ, height));
 
-        } catch (ExCLInternalError e) {
+        } catch (CLInternalError e) {
             System.out.println("constructor: CLInternalError!");
-        } catch (ExCLRequiredFailure e) {
+        } catch (RequiredConstraintFailureException e) {
             System.out.println("constructor: CLRequiredFailure!");
-        } catch (ExCLNonlinearExpression e) {
+        } catch (NonlinearExpressionException e) {
             System.out.println("constructor: CLNonlinearExpression!");
         }
     }
@@ -165,6 +166,7 @@ public class QuadDemo extends Applet {
         super();
     }
 
+    @Override
     // Event handlers
     public boolean mouseDown(Event e, int x, int y) {
         for (int a = 0; a < db.length; a++) {
@@ -179,35 +181,37 @@ public class QuadDemo extends Applet {
         if (dbDragging != -1) {
             try {
                 solver.addEditVar(db[dbDragging].X()).addEditVar(db[dbDragging].Y()).beginEdit();
-            } catch (ExCLInternalError ex) {
+            } catch (CLInternalError ex) {
                 System.err.println("mouseDown: CLInternalError!");
-                System.err.println(ex.description());
+                System.err.println(ex.getMessage());
             }
         }
         return true;
     }
 
+    @Override
     public boolean mouseUp(Event e, int x, int y) {
         if (dbDragging != -1) {
             try {
                 dbDragging = -1;
                 solver.endEdit();
                 repaint();
-            } catch (ExCLInternalError ex) {
+            } catch (CLInternalError ex) {
                 System.err.println("mouseUp: CLInternalError!");
-                System.err.println(ex.description());
+                System.err.println(ex.getMessage());
             }
         }
         return true;
     }
 
+    @Override
     public boolean mouseDrag(Event e, int x, int y) {
         if (dbDragging != -1) {
             try {
                 solver.suggestValue(db[dbDragging].X(), x).suggestValue(db[dbDragging].Y(), y).resolve();
-            } catch (ExCLInternalError ex) {
+            } catch (CLInternalError ex) {
                 System.out.println("mouseDrag: CLInternalError!");
-            } catch (ExCLError ex) {
+            } catch (CLException ex) {
                 System.out.println("mouseDrag: CLError!");
             }
             repaint();
@@ -215,6 +219,7 @@ public class QuadDemo extends Applet {
         return true;
     }
 
+    @Override
     // Paint the display
     public void paint(Graphics g) {
         g.drawLine((int) db[0].CenterX(), (int) db[0].CenterY(), (int) db[1].CenterX(), (int) db[1].CenterY());

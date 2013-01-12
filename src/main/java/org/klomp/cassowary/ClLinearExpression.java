@@ -75,11 +75,11 @@ public class ClLinearExpression extends CL {
         return ((ClLinearExpression) clone()).multiplyMe(x);
     }
 
-    public final ClLinearExpression times(ClLinearExpression expr) throws ExCLNonlinearExpression {
+    public final ClLinearExpression times(ClLinearExpression expr) throws NonlinearExpressionException {
         if (isConstant()) {
             return expr.times(_constant.doubleValue());
         } else if (!expr.isConstant()) {
-            throw new ExCLNonlinearExpression();
+            throw new NonlinearExpressionException();
         }
         return times(expr._constant.doubleValue());
     }
@@ -88,7 +88,7 @@ public class ClLinearExpression extends CL {
         return ((ClLinearExpression) clone()).addExpression(expr, 1.0);
     }
 
-    public final ClLinearExpression plus(ClVariable var) throws ExCLNonlinearExpression {
+    public final ClLinearExpression plus(ClVariable var) throws NonlinearExpressionException {
         return ((ClLinearExpression) clone()).addVariable(var, 1.0);
     }
 
@@ -96,27 +96,27 @@ public class ClLinearExpression extends CL {
         return ((ClLinearExpression) clone()).addExpression(expr, -1.0);
     }
 
-    public final ClLinearExpression minus(ClVariable var) throws ExCLNonlinearExpression {
+    public final ClLinearExpression minus(ClVariable var) throws NonlinearExpressionException {
         return ((ClLinearExpression) clone()).addVariable(var, -1.0);
     }
 
-    public final ClLinearExpression divide(double x) throws ExCLNonlinearExpression {
+    public final ClLinearExpression divide(double x) throws NonlinearExpressionException {
         if (CL.approx(x, 0.0)) {
-            throw new ExCLNonlinearExpression();
+            throw new NonlinearExpressionException();
         }
         return times(1.0 / x);
     }
 
-    public final ClLinearExpression divide(ClLinearExpression expr) throws ExCLNonlinearExpression {
+    public final ClLinearExpression divide(ClLinearExpression expr) throws NonlinearExpressionException {
         if (!expr.isConstant()) {
-            throw new ExCLNonlinearExpression();
+            throw new NonlinearExpressionException();
         }
         return divide(expr._constant.doubleValue());
     }
 
-    public final ClLinearExpression divFrom(ClLinearExpression expr) throws ExCLNonlinearExpression {
+    public final ClLinearExpression divFrom(ClLinearExpression expr) throws NonlinearExpressionException {
         if (!isConstant() || CL.approx(_constant.doubleValue(), 0.0)) {
-            throw new ExCLNonlinearExpression();
+            throw new NonlinearExpressionException();
         }
         return expr.divide(_constant.doubleValue());
     }
@@ -220,9 +220,9 @@ public class ClLinearExpression extends CL {
     // Return a pivotable variable in this expression. (It is an error
     // if this expression is constant -- signal ExCLInternalError in
     // that case). Return null if no pivotable variables
-    public final ClAbstractVariable anyPivotableVariable() throws ExCLInternalError {
+    public final ClAbstractVariable anyPivotableVariable() throws CLInternalError {
         if (isConstant()) {
-            throw new ExCLInternalError("anyPivotableVariable called on a constant");
+            throw new CLInternalError("anyPivotableVariable called on a constant");
         }
 
         for (ClAbstractVariable clv : _terms.keySet()) {
@@ -382,11 +382,11 @@ public class ClLinearExpression extends CL {
         return e1.minus(e2);
     }
 
-    public final static ClLinearExpression Times(ClLinearExpression e1, ClLinearExpression e2) throws ExCLNonlinearExpression {
+    public final static ClLinearExpression Times(ClLinearExpression e1, ClLinearExpression e2) throws NonlinearExpressionException {
         return e1.times(e2);
     }
 
-    public final static ClLinearExpression Divide(ClLinearExpression e1, ClLinearExpression e2) throws ExCLNonlinearExpression {
+    public final static ClLinearExpression Divide(ClLinearExpression e1, ClLinearExpression e2) throws NonlinearExpressionException {
         return e1.divide(e2);
     }
 

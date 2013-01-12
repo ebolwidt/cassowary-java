@@ -3,6 +3,10 @@ package org.klomp.cassowary;
 import java.util.Random;
 
 import org.junit.Test;
+import org.klomp.cassowary.clconstraint.ClConstraint;
+import org.klomp.cassowary.clconstraint.ClEditConstraint;
+import org.klomp.cassowary.clconstraint.ClLinearEquation;
+import org.klomp.cassowary.clconstraint.ClLinearInequality;
 
 public class AddDelResolversTest {
 
@@ -12,6 +16,24 @@ public class AddDelResolversTest {
     public void testAddDelete() throws Exception {
         int testNum = 1, cns = 900, resolves = 400, solvers = 15;
         addDelSolvers(cns, resolves, solvers, testNum);
+    }
+
+    public void testAddDeleteMany() throws Exception {
+        int testNum = 40, cns = 1100, resolves = 3000, solvers = 20;
+        addDelSolvers(cns, resolves, solvers, testNum);
+
+        // int testNum = 40, cns = 1100, resolves = 3000, solvers = 20;
+        // Elapsed time for add: 4.35 seconds
+        // Elapsed time for resolve: 14.425 seconds
+        //
+        // Elapsed time for add: 3.272 seconds
+        // Elapsed time for resolve: 14.283 seconds
+        //
+        // Elapsed time for add: 2.783 seconds
+        // Elapsed time for resolve: 15.699 seconds
+        //
+        // Elapsed time for add: 2.721 seconds
+        // Elapsed time for resolve: 14.923 seconds
     }
 
     public final static double GrainedUniformRandom() {
@@ -34,8 +56,8 @@ public class AddDelResolversTest {
         return (n / Integer.MAX_VALUE);
     }
 
-    public final static boolean addDelSolvers(int nCns, int nResolves, int nSolvers, int testNum) throws ExCLInternalError,
-            ExCLRequiredFailure, ExCLNonlinearExpression, ExCLConstraintNotFound {
+    public final static boolean addDelSolvers(int nCns, int nResolves, int nSolvers, int testNum) throws CLInternalError,
+            RequiredConstraintFailureException, NonlinearExpressionException, ConstraintNotFoundException {
         Timer timer = new Timer();
 
         double tmAdd, tmEdit, tmResolve, tmEndEdit;
@@ -104,7 +126,7 @@ public class AddDelResolversTest {
                         // System.out.println("Added " + j + " = " + rgpcns[j]);
                         ++cCns;
                     }
-                } catch (ExCLRequiredFailure err) {
+                } catch (RequiredConstraintFailureException err) {
                     rgpcns[j] = null;
                 }
             }
@@ -125,7 +147,7 @@ public class AddDelResolversTest {
                         // System.out.println("Added " + j + " = " + rgpcns[j]);
                         ++cCns;
                     }
-                } catch (ExCLRequiredFailure err) {
+                } catch (RequiredConstraintFailureException err) {
                     cExceptions++;
                     rgpcns[j] = null;
                 }
@@ -180,9 +202,9 @@ public class AddDelResolversTest {
 
         tmEndEdit = timer.ElapsedTime();
         System.out.println("Elapsed time for add:      " + tmAdd + " seconds");
-        System.out.println("Elapsed time for edit:     " + tmEdit + " seconds");
+        // System.out.println("Elapsed time for edit:     " + tmEdit + " seconds");
         System.out.println("Elapsed time for resolve:  " + tmResolve + " seconds");
-        System.out.println("Elapsed time for end edit: " + tmEndEdit + " seconds");
+        // System.out.println("Elapsed time for end edit: " + tmEndEdit + " seconds");
 
         final int mspersec = 1000;
         System.out.println(nCns + "," + nSolvers + "," + nResolves + "," + testNum + "," + tmAdd * mspersec + ","

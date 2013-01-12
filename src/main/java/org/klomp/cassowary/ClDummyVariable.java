@@ -13,8 +13,6 @@
 package org.klomp.cassowary;
 
 class ClDummyVariable extends ClAbstractVariable {
-    // friend ClTableau;
-    // friend ClSimplexSolver;
 
     public ClDummyVariable(String name) {
         super(name);

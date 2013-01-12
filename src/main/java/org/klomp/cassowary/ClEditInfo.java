@@ -12,6 +12,8 @@
 
 package org.klomp.cassowary;
 
+import org.klomp.cassowary.clconstraint.ClConstraint;
+
 // ClEditInfo is a privately-used class
 // that just wraps a constraint, its positive and negative
 // error variables, and its prior edit constant.

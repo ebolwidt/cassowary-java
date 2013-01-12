@@ -152,7 +152,7 @@ class ClTableau extends CL {
 
     // Remove the basic variable v from the tableau row v=expr
     // Then update column cross indices
-    protected final ClLinearExpression removeRow(ClAbstractVariable var) throws ExCLInternalError {
+    protected final ClLinearExpression removeRow(ClAbstractVariable var) throws CLInternalError {
         if (fTraceOn)
             fnenterprint("removeRow:" + var);
 

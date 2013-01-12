@@ -18,6 +18,11 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 
+import org.klomp.cassowary.clconstraint.ClConstraint;
+import org.klomp.cassowary.clconstraint.ClEditConstraint;
+import org.klomp.cassowary.clconstraint.ClLinearInequality;
+import org.klomp.cassowary.clconstraint.ClStayConstraint;
+
 public class ClSimplexSolver extends ClTableau {
     // Ctr initializes the fields, and creates the objective row
     public ClSimplexSolver() {
@@ -52,27 +57,29 @@ public class ClSimplexSolver extends ClTableau {
     }
 
     // Convenience function for creating a linear inequality constraint
-    public final ClSimplexSolver addLowerBound(ClAbstractVariable v, double lower) throws ExCLRequiredFailure, ExCLInternalError {
+    public final ClSimplexSolver addLowerBound(ClAbstractVariable v, double lower) throws RequiredConstraintFailureException,
+            CLInternalError {
         ClLinearInequality cn = new ClLinearInequality(v, CL.GEQ, new ClLinearExpression(lower));
         return addConstraint(cn);
     }
 
     // Convenience function for creating a linear inequality constraint
-    public final ClSimplexSolver addUpperBound(ClAbstractVariable v, double upper) throws ExCLRequiredFailure, ExCLInternalError {
+    public final ClSimplexSolver addUpperBound(ClAbstractVariable v, double upper) throws RequiredConstraintFailureException,
+            CLInternalError {
         ClLinearInequality cn = new ClLinearInequality(v, CL.LEQ, new ClLinearExpression(upper));
         return addConstraint(cn);
     }
 
     // Convenience function for creating a pair of linear inequality constraint
-    public final ClSimplexSolver addBounds(ClAbstractVariable v, double lower, double upper) throws ExCLRequiredFailure,
-            ExCLInternalError {
+    public final ClSimplexSolver addBounds(ClAbstractVariable v, double lower, double upper)
+            throws RequiredConstraintFailureException, CLInternalError {
         addLowerBound(v, lower);
         addUpperBound(v, upper);
         return this;
     }
 
     // Add constraint "cn" to the solver
-    public final ClSimplexSolver addConstraint(ClConstraint cn) throws ExCLRequiredFailure, ExCLInternalError {
+    public final ClSimplexSolver addConstraint(ClConstraint cn) throws RequiredConstraintFailureException, CLInternalError {
         if (fTraceOn)
             fnenterprint("addConstraint: " + cn);
 
@@ -88,7 +95,7 @@ public class ClSimplexSolver extends ClTableau {
                 // could not add directly
                 addWithArtificialVariable(expr);
             }
-        } catch (ExCLRequiredFailure err) {
+        } catch (RequiredConstraintFailureException err) {
             // /try {
             // / removeConstraint(cn); // FIXGJB
             // } catch (ExCLConstraintNotFound errNF) {
@@ -119,36 +126,36 @@ public class ClSimplexSolver extends ClTableau {
 
     // Same as addConstraint, except returns false if the constraint
     // resulted in an unsolvable system (instead of throwing an exception)
-    public final boolean addConstraintNoException(ClConstraint cn) throws ExCLInternalError {
+    public final boolean addConstraintNoException(ClConstraint cn) throws CLInternalError {
         if (fTraceOn)
             fnenterprint("addConstraintNoException: " + cn);
 
         try {
             addConstraint(cn);
             return true;
-        } catch (ExCLRequiredFailure e) {
+        } catch (RequiredConstraintFailureException e) {
             return false;
         }
     }
 
     // Add an edit constraint for "v" with given strength
-    public final ClSimplexSolver addEditVar(ClVariable v, ClStrength strength) throws ExCLInternalError {
+    public final ClSimplexSolver addEditVar(ClVariable v, ClStrength strength) throws CLInternalError {
         try {
             ClEditConstraint cnEdit = new ClEditConstraint(v, strength);
             return addConstraint(cnEdit);
-        } catch (ExCLRequiredFailure e) {
+        } catch (RequiredConstraintFailureException e) {
             // should not get this
-            throw new ExCLInternalError("Required failure when adding an edit variable");
+            throw new CLInternalError("Required failure when adding an edit variable");
         }
     }
 
     // default to strength = strong
-    public final ClSimplexSolver addEditVar(ClVariable v) throws ExCLInternalError {
+    public final ClSimplexSolver addEditVar(ClVariable v) throws CLInternalError {
         return addEditVar(v, ClStrength.strong);
     }
 
     // Remove the edit constraint previously added for variable v
-    public final ClSimplexSolver removeEditVar(ClVariable v) throws ExCLInternalError, ExCLConstraintNotFound {
+    public final ClSimplexSolver removeEditVar(ClVariable v) throws CLInternalError, ConstraintNotFoundException {
         ClEditInfo cei = (ClEditInfo) _editVarMap.get(v);
         ClConstraint cn = cei.Constraint();
         removeConstraint(cn);
@@ -157,7 +164,7 @@ public class ClSimplexSolver extends ClTableau {
 
     // beginEdit() should be called before sending
     // resolve() messages, after adding the appropriate edit variables
-    public final ClSimplexSolver beginEdit() throws ExCLInternalError {
+    public final ClSimplexSolver beginEdit() throws CLInternalError {
         assert _editVarMap.size() > 0 : "_editVarMap.size() > 0";
         // may later want to do more in here
         _infeasibleRows.clear();
@@ -168,7 +175,7 @@ public class ClSimplexSolver extends ClTableau {
 
     // endEdit should be called after editing has finished
     // for now, it just removes all edit variables
-    public final ClSimplexSolver endEdit() throws ExCLInternalError {
+    public final ClSimplexSolver endEdit() throws CLInternalError {
         assert _editVarMap.size() > 0 : "_editVarMap.size() > 0";
         resolve();
         _stkCedcns.pop();
@@ -180,12 +187,12 @@ public class ClSimplexSolver extends ClTableau {
 
     // removeAllEditVars() just eliminates all the edit constraints
     // that were added
-    public final ClSimplexSolver removeAllEditVars() throws ExCLInternalError {
+    public final ClSimplexSolver removeAllEditVars() throws CLInternalError {
         return removeEditVarsTo(0);
     }
 
     // remove the last added edit vars to leave only n edit vars left
-    public final ClSimplexSolver removeEditVarsTo(int n) throws ExCLInternalError {
+    public final ClSimplexSolver removeEditVarsTo(int n) throws CLInternalError {
         try {
             for (Enumeration e = _editVarMap.keys(); e.hasMoreElements();) {
                 ClVariable v = (ClVariable) e.nextElement();
@@ -197,9 +204,9 @@ public class ClSimplexSolver extends ClTableau {
             assert _editVarMap.size() == n : "_editVarMap.size() == n";
 
             return this;
-        } catch (ExCLConstraintNotFound e) {
+        } catch (ConstraintNotFoundException e) {
             // should not get this
-            throw new ExCLInternalError("Constraint not found in removeEditVarsTo");
+            throw new CLInternalError("Constraint not found in removeEditVarsTo");
         }
     }
 
@@ -207,7 +214,7 @@ public class ClSimplexSolver extends ClTableau {
     // increasing weights so that the solver will try to satisfy the x
     // and y stays on the same point, rather than the x stay on one and
     // the y stay on another.
-    public final ClSimplexSolver addPointStays(Vector listOfPoints) throws ExCLRequiredFailure, ExCLInternalError {
+    public final ClSimplexSolver addPointStays(Vector listOfPoints) throws RequiredConstraintFailureException, CLInternalError {
         if (fTraceOn)
             fnenterprint("addPointStays" + listOfPoints);
         double weight = 1.0;
@@ -219,49 +226,52 @@ public class ClSimplexSolver extends ClTableau {
         return this;
     }
 
-    public final ClSimplexSolver addPointStay(ClVariable vx, ClVariable vy, double weight) throws ExCLRequiredFailure,
-            ExCLInternalError {
+    public final ClSimplexSolver addPointStay(ClVariable vx, ClVariable vy, double weight)
+            throws RequiredConstraintFailureException, CLInternalError {
         addStay(vx, ClStrength.weak, weight);
         addStay(vy, ClStrength.weak, weight);
         return this;
     }
 
-    public final ClSimplexSolver addPointStay(ClVariable vx, ClVariable vy) throws ExCLRequiredFailure, ExCLInternalError {
+    public final ClSimplexSolver addPointStay(ClVariable vx, ClVariable vy) throws RequiredConstraintFailureException,
+            CLInternalError {
         addPointStay(vx, vy, 1.0);
         return this;
     }
 
-    public final ClSimplexSolver addPointStay(ClPoint clp, double weight) throws ExCLRequiredFailure, ExCLInternalError {
+    public final ClSimplexSolver addPointStay(ClPoint clp, double weight) throws RequiredConstraintFailureException,
+            CLInternalError {
         addStay(clp.X(), ClStrength.weak, weight);
         addStay(clp.Y(), ClStrength.weak, weight);
         return this;
     }
 
-    public final ClSimplexSolver addPointStay(ClPoint clp) throws ExCLRequiredFailure, ExCLInternalError {
+    public final ClSimplexSolver addPointStay(ClPoint clp) throws RequiredConstraintFailureException, CLInternalError {
         addPointStay(clp, 1.0);
         return this;
     }
 
     // Add a stay of the given strength (default to weak) of v to the tableau
-    public final ClSimplexSolver addStay(ClVariable v, ClStrength strength, double weight) throws ExCLRequiredFailure,
-            ExCLInternalError {
+    public final ClSimplexSolver addStay(ClVariable v, ClStrength strength, double weight)
+            throws RequiredConstraintFailureException, CLInternalError {
         ClStayConstraint cn = new ClStayConstraint(v, strength, weight);
         return addConstraint(cn);
     }
 
     // default to weight == 1.0
-    public final ClSimplexSolver addStay(ClVariable v, ClStrength strength) throws ExCLRequiredFailure, ExCLInternalError {
+    public final ClSimplexSolver addStay(ClVariable v, ClStrength strength) throws RequiredConstraintFailureException,
+            CLInternalError {
         addStay(v, strength, 1.0);
         return this;
     }
 
     // default to strength = weak
-    public final ClSimplexSolver addStay(ClVariable v) throws ExCLRequiredFailure, ExCLInternalError {
+    public final ClSimplexSolver addStay(ClVariable v) throws RequiredConstraintFailureException, CLInternalError {
         addStay(v, ClStrength.weak, 1.0);
         return this;
     }
 
-    public ClSimplexSolver removeConstraint(ClConstraint cn) throws ExCLConstraintNotFound, ExCLInternalError {
+    public ClSimplexSolver removeConstraint(ClConstraint cn) throws ConstraintNotFoundException, CLInternalError {
         removeConstraintInternal(cn);
         cn.removedFrom(this);
         return this;
@@ -269,7 +279,7 @@ public class ClSimplexSolver extends ClTableau {
 
     // Remove the constraint cn from the tableau
     // Also remove any error variable associated with cn
-    private final ClSimplexSolver removeConstraintInternal(ClConstraint cn) throws ExCLConstraintNotFound, ExCLInternalError {
+    private final ClSimplexSolver removeConstraintInternal(ClConstraint cn) throws ConstraintNotFoundException, CLInternalError {
         if (fTraceOn)
             fnenterprint("removeConstraint: " + cn);
         if (fTraceOn)
@@ -299,7 +309,7 @@ public class ClSimplexSolver extends ClTableau {
 
         ClAbstractVariable marker = (ClAbstractVariable) _markerVars.remove(cn);
         if (marker == null) {
-            throw new ExCLConstraintNotFound();
+            throw new ConstraintNotFoundException();
         }
 
         if (fTraceOn)
@@ -431,7 +441,7 @@ public class ClSimplexSolver extends ClTableau {
     // of a list of edits and then try to resolve with this function
     // (you'll get the wrong answer, because the indices will be wrong
     // in the ClEditInfo objects)
-    public final void resolve(Vector newEditConstants) throws ExCLInternalError {
+    public final void resolve(Vector newEditConstants) throws CLInternalError {
         if (fTraceOn)
             fnenterprint("resolve" + newEditConstants);
         for (Enumeration e = _editVarMap.keys(); e.hasMoreElements();) {
@@ -441,15 +451,15 @@ public class ClSimplexSolver extends ClTableau {
             try {
                 if (i < newEditConstants.size())
                     suggestValue(v, ((ClDouble) newEditConstants.elementAt(i)).doubleValue());
-            } catch (ExCLError err) {
-                throw new ExCLInternalError("Error during resolve");
+            } catch (CLException err) {
+                throw new CLInternalError("Error during resolve");
             }
         }
         resolve();
     }
 
     // Convenience function for resolve-s of two variables
-    public final void resolve(double x, double y) throws ExCLInternalError {
+    public final void resolve(double x, double y) throws CLInternalError {
         ((ClDouble) _resolve_pair.elementAt(0)).setValue(x);
         ((ClDouble) _resolve_pair.elementAt(1)).setValue(y);
         resolve(_resolve_pair);
@@ -458,7 +468,7 @@ public class ClSimplexSolver extends ClTableau {
     // Re-solve the cuurent collection of constraints, given the new
     // values for the edit variables that have already been
     // suggested (see suggestValue() method)
-    public final void resolve() throws ExCLInternalError {
+    public final void resolve() throws CLInternalError {
         if (fTraceOn)
             fnenterprint("resolve()");
         dualOptimize();
@@ -472,13 +482,13 @@ public class ClSimplexSolver extends ClTableau {
     // and beginEdit() needs to be called before this is called.
     // The tableau will not be solved completely until
     // after resolve() has been called
-    public final ClSimplexSolver suggestValue(ClVariable v, double x) throws ExCLError {
+    public final ClSimplexSolver suggestValue(ClVariable v, double x) throws CLException {
         if (fTraceOn)
             fnenterprint("suggestValue(" + v + ", " + x + ")");
         ClEditInfo cei = (ClEditInfo) _editVarMap.get(v);
         if (cei == null) {
             System.err.println("suggestValue for variable " + v + ", but var is not an edit variable\n");
-            throw new ExCLError();
+            throw new CLException();
         }
         int i = cei.Index();
         ClSlackVariable clvEditPlus = cei.ClvEditPlus();
@@ -512,7 +522,7 @@ public class ClSimplexSolver extends ClTableau {
     // If autosolving has been turned off, client code needs
     // to explicitly call solve() before accessing variables
     // values
-    public final ClSimplexSolver solve() throws ExCLInternalError {
+    public final ClSimplexSolver solve() throws CLInternalError {
         if (_fNeedsSolving) {
             optimize(_objective);
             setExternalVariables();
@@ -520,7 +530,7 @@ public class ClSimplexSolver extends ClTableau {
         return this;
     }
 
-    public ClSimplexSolver setEditedValue(ClVariable v, double n) throws ExCLInternalError {
+    public ClSimplexSolver setEditedValue(ClVariable v, double n) throws CLInternalError {
         if (!FContainsVariable(v)) {
             v.change_value(n);
             return this;
@@ -531,26 +541,26 @@ public class ClSimplexSolver extends ClTableau {
             beginEdit();
             try {
                 suggestValue(v, n);
-            } catch (ExCLError e) {
+            } catch (CLException e) {
                 // just added it above, so we shouldn't get an error
-                throw new ExCLInternalError("Error in setEditedValue");
+                throw new CLInternalError("Error in setEditedValue");
             }
             endEdit();
         }
         return this;
     }
 
-    public final boolean FContainsVariable(ClVariable v) throws ExCLInternalError {
+    public final boolean FContainsVariable(ClVariable v) throws CLInternalError {
         return columnsHasKey(v) || (rowExpression(v) != null);
     }
 
-    public ClSimplexSolver addVar(ClVariable v) throws ExCLInternalError {
+    public ClSimplexSolver addVar(ClVariable v) throws CLInternalError {
         if (!FContainsVariable(v)) {
             try {
                 addStay(v);
-            } catch (ExCLRequiredFailure e) {
+            } catch (RequiredConstraintFailureException e) {
                 // cannot have a required failure, since we add w/ weak
-                throw new ExCLInternalError("Error in addVar -- required failure is impossible");
+                throw new CLInternalError("Error in addVar -- required failure is impossible");
             }
             if (fTraceOn) {
                 traceprint("added initial stay on " + v);
@@ -602,7 +612,8 @@ public class ClSimplexSolver extends ClTableau {
     // artificial variable. To do this, create an artificial variable
     // av and add av=expr to the inequality tableau, then make av be 0.
     // (Raise an exception if we can't attain av=0.)
-    protected final void addWithArtificialVariable(ClLinearExpression expr) throws ExCLRequiredFailure, ExCLInternalError {
+    protected final void addWithArtificialVariable(ClLinearExpression expr) throws RequiredConstraintFailureException,
+            CLInternalError {
         if (fTraceOn)
             fnenterprint("addWithArtificialVariable: " + expr);
 
@@ -628,7 +639,7 @@ public class ClSimplexSolver extends ClTableau {
         if (!CL.approx(azTableauRow.constant(), 0.0)) {
             removeRow(az);
             removeColumn(av);
-            throw new ExCLRequiredFailure();
+            throw new RequiredConstraintFailureException();
         }
 
         // See if av is a basic variable
@@ -657,7 +668,7 @@ public class ClSimplexSolver extends ClTableau {
     // tableau. Try to add expr directly to the tableax without
     // creating an artificial variable. Return true if successful and
     // false if not.
-    protected final boolean tryAddingDirectly(ClLinearExpression expr) throws ExCLRequiredFailure {
+    protected final boolean tryAddingDirectly(ClLinearExpression expr) throws RequiredConstraintFailureException {
         if (fTraceOn)
             fnenterprint("tryAddingDirectly: " + expr);
         final ClAbstractVariable subject = chooseSubject(expr);
@@ -694,7 +705,7 @@ public class ClSimplexSolver extends ClTableau {
     // ignore whether a variable occurs in the objective function, since
     // new slack variables are added to the objective function by
     // 'newExpression:', which is called before this method.
-    protected final ClAbstractVariable chooseSubject(ClLinearExpression expr) throws ExCLRequiredFailure {
+    protected final ClAbstractVariable chooseSubject(ClLinearExpression expr) throws RequiredConstraintFailureException {
         if (fTraceOn)
             fnenterprint("chooseSubject: " + expr);
         ClAbstractVariable subject = null; // the current best subject, if any
@@ -747,7 +758,7 @@ public class ClSimplexSolver extends ClTableau {
         }
 
         if (!CL.approx(expr.constant(), 0.0)) {
-            throw new ExCLRequiredFailure();
+            throw new RequiredConstraintFailureException();
         }
         if (coeff > 0.0) {
             expr.multiplyMe(-1);
@@ -809,7 +820,7 @@ public class ClSimplexSolver extends ClTableau {
 
     // We have set new values for the constants in the edit constraints.
     // Re-optimize using the dual simplex algorithm.
-    protected final void dualOptimize() throws ExCLInternalError {
+    protected final void dualOptimize() throws CLInternalError {
         if (fTraceOn)
             fnenterprint("dualOptimize:");
         final ClLinearExpression zRow = rowExpression(_objective);
@@ -836,7 +847,7 @@ public class ClSimplexSolver extends ClTableau {
                         }
                     }
                     if (ratio == Double.MAX_VALUE) {
-                        throw new ExCLInternalError("ratio == nil (MAX_VALUE) in dualOptimize");
+                        throw new CLInternalError("ratio == nil (MAX_VALUE) in dualOptimize");
                     }
                     pivot(entryVar, exitVar);
                 }
@@ -860,7 +871,7 @@ public class ClSimplexSolver extends ClTableau {
         final ClLinearExpression cnExpr = cn.expression();
         ClLinearExpression expr = new ClLinearExpression(cnExpr.constant());
         ClSlackVariable slackVar = new ClSlackVariable();
-        ClDummyVariable dummyVar = new ClDummyVariable();
+        // ClDummyVariable dummyVar = new ClDummyVariable();
         ClSlackVariable eminus = new ClSlackVariable();
         ClSlackVariable eplus = new ClSlackVariable();
         final Map<ClAbstractVariable, ClDouble> cnTerms = cnExpr.terms();
@@ -893,7 +904,7 @@ public class ClSimplexSolver extends ClTableau {
             // cn is an equality
             if (cn.isRequired()) {
                 ++_dummyCounter;
-                dummyVar = new ClDummyVariable(_dummyCounter, "d");
+                ClDummyVariable dummyVar = new ClDummyVariable(_dummyCounter, "d");
                 expr.setVariable(dummyVar, 1.0);
                 _markerVars.put(cn, dummyVar);
                 if (fTraceOn)
@@ -944,7 +955,7 @@ public class ClSimplexSolver extends ClTableau {
 
     // Minimize the value of the objective. (The tableau should already
     // be feasible.)
-    protected final void optimize(ClObjectiveVariable zVar) throws ExCLInternalError {
+    protected final void optimize(ClObjectiveVariable zVar) throws CLInternalError {
         if (fTraceOn)
             fnenterprint("optimize: " + zVar);
         if (fTraceOn)
@@ -994,7 +1005,7 @@ public class ClSimplexSolver extends ClTableau {
                 }
             }
             if (minRatio == Double.MAX_VALUE) {
-                throw new ExCLInternalError("Objective function is unbounded in optimize");
+                throw new CLInternalError("Objective function is unbounded in optimize");
             }
             pivot(entryVar, exitVar);
             if (fTraceOn)
@@ -1004,7 +1015,7 @@ public class ClSimplexSolver extends ClTableau {
 
     // Do a pivot. Move entryVar into the basis (i.e. make it a basic variable),
     // and move exitVar out of the basis (i.e., make it a parametric variable)
-    protected final void pivot(ClAbstractVariable entryVar, ClAbstractVariable exitVar) throws ExCLInternalError {
+    protected final void pivot(ClAbstractVariable entryVar, ClAbstractVariable exitVar) throws CLInternalError {
         if (fTraceOn)
             fnenterprint("pivot: " + entryVar + ", " + exitVar);
 
