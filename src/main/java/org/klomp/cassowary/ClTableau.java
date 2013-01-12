@@ -209,11 +209,6 @@ class ClTableau extends CL {
     // Replace all occurrences of oldVar with expr, and update column cross indices
     // oldVar should now be a basic variable
     protected final void substituteOut(ClAbstractVariable oldVar, ClLinearExpression expr) {
-        if (fTraceOn)
-            fnenterprint("substituteOut:" + oldVar + ", " + expr);
-        if (fTraceOn)
-            traceprint(this.toString());
-
         Set<ClAbstractVariable> varset = _columns.get(oldVar);
         for (ClAbstractVariable v : varset) {
             ClLinearExpression row = _rows.get(v);
@@ -223,7 +218,7 @@ class ClTableau extends CL {
             }
         }
 
-        if (oldVar.isExternal() && oldVar instanceof ClVariable) {
+        if (oldVar instanceof ClVariable) {
             _externalRows.add((ClVariable) oldVar);
             _externalParametricVars.remove(oldVar);
         }
@@ -244,7 +239,6 @@ class ClTableau extends CL {
     }
 
     protected final ClLinearExpression rowExpression(ClAbstractVariable v) {
-        // if (fTraceOn) fnenterprint("rowExpression:" + v);
         return _rows.get(v);
     }
 

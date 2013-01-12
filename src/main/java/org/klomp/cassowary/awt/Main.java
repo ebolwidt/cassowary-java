@@ -39,7 +39,7 @@ public class Main extends java.applet.Applet {
         f.add(mainInstance);
         f.pack();
         f.setSize(400, 400);
-        f.show();
+        f.setVisible(true);
     }
 
 }

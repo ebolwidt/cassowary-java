@@ -3,13 +3,12 @@ package org.klomp.cassowary.util;
 import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 public class IdentityHashSet<E> implements Set<E> {
 
-    IdentityHashMap<E, Object> map = new IdentityHashMap<E, Object>();
+    private IdentityHashMap<E, Object> map = new IdentityHashMap<E, Object>();
 
     @Override
     public boolean add(E element) {
@@ -59,25 +58,7 @@ public class IdentityHashSet<E> implements Set<E> {
 
     @Override
     public Iterator<E> iterator() {
-
-        return new Iterator<E>() {
-            Iterator<Map.Entry<E, Object>> it = map.entrySet().iterator();
-
-            @Override
-            public boolean hasNext() {
-                return it.hasNext();
-            }
-
-            @Override
-            public E next() {
-                return it.next().getKey();
-            }
-
-            @Override
-            public void remove() {
-                it.remove();
-            }
-        };
+        return map.keySet().iterator();
     }
 
     @Override

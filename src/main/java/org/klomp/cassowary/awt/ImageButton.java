@@ -13,6 +13,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Toolkit;
+import java.net.URL;
 
 public class ImageButton extends Button {
 
@@ -62,7 +64,10 @@ public class ImageButton extends Button {
         // Retrieve the image
         String fullImgName = new String(imgName + ".gif");
         System.out.println("Loading image '" + fullImgName + "'");
-        img = ((Applet) parentApp).getImage(((Applet) parentApp).getDocumentBase(), fullImgName);
+        URL resUrl = getClass().getResource("/icons/" + fullImgName);
+        System.out.println("Image URL: " + resUrl);
+        img = Toolkit.getDefaultToolkit().getImage(resUrl);
+        // img = ((Applet) parentApp).getImage(((Applet) parentApp).getDocumentBase(), fullImgName);
         ibio = new ImageButtonImageObserver(this);
 
         // Set background color to "button grey"

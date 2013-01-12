@@ -13,6 +13,8 @@
 package org.klomp.cassowary;
 
 public class ClDouble extends Number {
+    private double value;
+
     public ClDouble(double val) {
         value = val;
     }
@@ -80,5 +82,4 @@ public class ClDouble extends Number {
         return (int) java.lang.Double.doubleToLongBits(value);
     }
 
-    private double value;
 }

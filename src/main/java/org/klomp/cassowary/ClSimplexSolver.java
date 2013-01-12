@@ -1050,8 +1050,6 @@ public class ClSimplexSolver extends ClTableau {
     // Do a pivot. Move entryVar into the basis (i.e. make it a basic variable),
     // and move exitVar out of the basis (i.e., make it a parametric variable)
     protected final void pivot(ClAbstractVariable entryVar, ClAbstractVariable exitVar) throws CLInternalError {
-        if (fTraceOn)
-            fnenterprint("pivot: " + entryVar + ", " + exitVar);
 
         // the entryVar might be non-pivotable if we're doing a removeConstraint --
         // otherwise it should be a pivotable variable -- enforced at call sites,
@@ -1100,7 +1098,7 @@ public class ClSimplexSolver extends ClTableau {
     // them.
     protected final void setExternalVariables() {
         for (ClVariable v : _externalParametricVars) {
-            if (rowExpression(v) != null) {
+            if (_rows.containsKey(v)) {
                 System.err.println("Error: variable" + v + " in _externalParametricVars is basic");
                 continue;
             }

@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class ClLinearExpression extends CL {
     private double _constant;
-    private IdentityHashMap<ClAbstractVariable, ClDouble> _terms; // from ClVariable to ClDouble
+    private IdentityHashMap<ClAbstractVariable, ClDouble> _terms;
 
     public ClLinearExpression(ClAbstractVariable clv, double value, double constant) {
         if (CL.fGC)
