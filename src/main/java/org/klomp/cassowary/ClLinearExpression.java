@@ -12,7 +12,7 @@
 
 package org.klomp.cassowary;
 
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -25,7 +25,7 @@ public class ClLinearExpression extends CL {
             System.err.println("new ClLinearExpression");
 
         _constant = new ClDouble(constant);
-        _terms = new HashMap<ClAbstractVariable, ClDouble>(1);
+        _terms = new IdentityHashMap<ClAbstractVariable, ClDouble>(1);
         if (clv != null)
             _terms.put(clv, new ClDouble(value));
     }
@@ -51,7 +51,7 @@ public class ClLinearExpression extends CL {
         if (CL.fGC)
             System.err.println("clone ClLinearExpression");
         _constant = constant.clone();
-        _terms = new HashMap<ClAbstractVariable, ClDouble>();
+        _terms = new IdentityHashMap<ClAbstractVariable, ClDouble>();
         // need to unalias the ClDouble-s that we clone (do a deep clone)
         for (Map.Entry<ClAbstractVariable, ClDouble> e : terms.entrySet()) {
             _terms.put(e.getKey(), e.getValue().clone());
@@ -193,10 +193,8 @@ public class ClLinearExpression extends CL {
     // contains a term involving v, add c to the existing coefficient.
     // If the new coefficient is approximately 0, delete v. Notify the
     // solver if v appears or disappears from this expression.
-    public final ClLinearExpression addVariable(ClAbstractVariable v, double c, ClAbstractVariable subject, ClTableau solver) { // body
-                                                                                                                                // largely
-                                                                                                                                // duplicated
-                                                                                                                                // above
+    public final ClLinearExpression addVariable(ClAbstractVariable v, double c, ClAbstractVariable subject, ClTableau solver) {
+        // body largely duplicated above
         if (fTraceOn)
             fnenterprint("addVariable:" + v + ", " + c + ", " + subject + ", ...");
 

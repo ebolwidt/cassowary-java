@@ -15,9 +15,9 @@ package org.klomp.cassowary;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 import java.util.Vector;
 
 import org.klomp.cassowary.clconstraint.ClConstraint;
@@ -60,7 +60,7 @@ public class ClSimplexSolver extends ClTableau {
     private boolean _fOptimizeAutomatically;
     private boolean _fNeedsSolving;
 
-    private Stack _stkCedcns;
+    private LinkedList<Integer> _stkCedcns;
 
     // Ctr initializes the fields, and creates the objective row
     public ClSimplexSolver() {
@@ -87,7 +87,7 @@ public class ClSimplexSolver extends ClTableau {
 
         ClLinearExpression e = new ClLinearExpression();
         _rows.put(_objective, e);
-        _stkCedcns = new Stack();
+        _stkCedcns = new LinkedList<Integer>();
         _stkCedcns.push(new Integer(0));
 
         if (fTraceOn)
@@ -207,7 +207,7 @@ public class ClSimplexSolver extends ClTableau {
         // may later want to do more in here
         _infeasibleRows.clear();
         resetStayConstants();
-        _stkCedcns.addElement(new Integer(_editVarMap.size()));
+        _stkCedcns.addFirst(new Integer(_editVarMap.size()));
         return this;
     }
 
@@ -217,7 +217,7 @@ public class ClSimplexSolver extends ClTableau {
         assert _editVarMap.size() > 0 : "_editVarMap.size() > 0";
         resolve();
         _stkCedcns.pop();
-        int n = ((Integer) _stkCedcns.peek()).intValue();
+        int n = _stkCedcns.peek().intValue();
         removeEditVarsTo(n);
         // may later want to do more in here
         return this;
@@ -1075,9 +1075,6 @@ public class ClSimplexSolver extends ClTableau {
     // occur only in the expression for that basic error variable.
     // Reset the constant in this expression to 0.
     protected final void resetStayConstants() {
-        if (fTraceOn)
-            fnenterprint("resetStayConstants");
-
         for (int i = 0; i < _stayPlusErrorVars.size(); i++) {
             ClLinearExpression expr = rowExpression((ClAbstractVariable) _stayPlusErrorVars.elementAt(i));
             if (expr == null)

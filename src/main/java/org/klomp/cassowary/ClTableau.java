@@ -11,9 +11,9 @@
 
 package org.klomp.cassowary;
 
-import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Hashtable;
+import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.Set;
 
 class ClTableau extends CL {
@@ -21,10 +21,10 @@ class ClTableau extends CL {
     // set of basic variables whose expressions contain them
     // i.e., it's a mapping from variables in expressions (a column) to the
     // set of rows that contain them
-    protected Hashtable<ClAbstractVariable, Set<ClAbstractVariable>> _columns; // From ClAbstractVariable to Set of variables
+    protected Map<ClAbstractVariable, Set<ClAbstractVariable>> _columns; // From ClAbstractVariable to Set of variables
 
     // _rows maps basic variables to the expressions for that row in the tableau
-    protected Hashtable<ClAbstractVariable, ClLinearExpression> _rows; // From ClAbstractVariable to ClLinearExpression
+    protected Map<ClAbstractVariable, ClLinearExpression> _rows; // From ClAbstractVariable to ClLinearExpression
 
     // the collection of basic variables that have infeasible rows
     // (used when reoptimizing)
@@ -41,8 +41,8 @@ class ClTableau extends CL {
     // ctr is protected, since this only supports an ADT for
     // the ClSimplexSolved class
     protected ClTableau() {
-        _columns = new Hashtable<ClAbstractVariable, Set<ClAbstractVariable>>();
-        _rows = new Hashtable<ClAbstractVariable, ClLinearExpression>();
+        _columns = new IdentityHashMap<ClAbstractVariable, Set<ClAbstractVariable>>();
+        _rows = new IdentityHashMap<ClAbstractVariable, ClLinearExpression>();
         _infeasibleRows = new HashSet<ClAbstractVariable>();
         _externalRows = new HashSet<ClVariable>();
         _externalParametricVars = new HashSet<ClVariable>();
@@ -88,8 +88,7 @@ class ClTableau extends CL {
     @Override
     public String toString() {
         StringBuffer bstr = new StringBuffer("Tableau:\n");
-        for (Enumeration e = _rows.keys(); e.hasMoreElements();) {
-            ClAbstractVariable clv = (ClAbstractVariable) e.nextElement();
+        for (ClAbstractVariable clv : _rows.keySet()) {
             ClLinearExpression expr = _rows.get(clv);
             bstr.append(clv.toString());
             bstr.append(" <==> ");
@@ -229,11 +228,11 @@ class ClTableau extends CL {
         _columns.remove(oldVar);
     }
 
-    protected final Hashtable columns() {
+    protected final Map<ClAbstractVariable, Set<ClAbstractVariable>> columns() {
         return _columns;
     }
 
-    protected final Hashtable rows() {
+    protected final Map<ClAbstractVariable, ClLinearExpression> rows() {
         return _rows;
     }
 
