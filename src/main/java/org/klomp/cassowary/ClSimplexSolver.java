@@ -15,6 +15,7 @@ package org.klomp.cassowary;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,7 @@ public class ClSimplexSolver extends ClTableau {
     // edit constraint (the edit plus/minus vars, the index [for old-style
     // resolve(Vector...) interface], and the previous value.
     // (ClEditInfo replaces the parallel vectors from the Smalltalk impl.)
-    private IdentityHashMap<ClVariable, ClEditInfo> _editVarMap; // map ClVariable to a ClEditInfo
+    private IdentityHashMap<ClVariable, ClEditInfo> _editVarMap;
 
     private long _slackCounter;
     private long _artificialCounter;
@@ -192,11 +193,10 @@ public class ClSimplexSolver extends ClTableau {
     }
 
     // Remove the edit constraint previously added for variable v
-    public final ClSimplexSolver removeEditVar(ClVariable v) throws CLInternalError, ConstraintNotFoundException {
-        ClEditInfo cei = _editVarMap.get(v);
+    private void removeEditVar(ClVariable v, ClEditInfo cei) {
         ClConstraint cn = cei.Constraint();
-        removeConstraint(cn);
-        return this;
+        removeConstraintInternal(cn, v);
+        cn.removedFrom(this);
     }
 
     // beginEdit() should be called before sending
@@ -234,9 +234,11 @@ public class ClSimplexSolver extends ClTableau {
             // for (Enumeration e = _editVarMap.keys(); e.hasMoreElements();) {
             // ClVariable v = (ClVariable) e.nextElement();
             // ClEditInfo cei = (ClEditInfo) _editVarMap.get(v);
-            for (Map.Entry<ClVariable, ClEditInfo> entry : _editVarMap.entrySet()) {
+            for (Iterator<Map.Entry<ClVariable, ClEditInfo>> i = _editVarMap.entrySet().iterator(); i.hasNext();) {
+                Map.Entry<ClVariable, ClEditInfo> entry = i.next();
                 if (entry.getValue().Index() >= n) {
-                    removeEditVar(entry.getKey());
+                    removeEditVar(entry.getKey(), entry.getValue());
+                    i.remove();
                 }
             }
             assert _editVarMap.size() == n : "_editVarMap.size() == n";
@@ -312,14 +314,15 @@ public class ClSimplexSolver extends ClTableau {
     }
 
     public ClSimplexSolver removeConstraint(ClConstraint cn) throws ConstraintNotFoundException, CLInternalError {
-        removeConstraintInternal(cn);
+        removeConstraintInternal(cn, null);
         cn.removedFrom(this);
         return this;
     }
 
     // Remove the constraint cn from the tableau
     // Also remove any error variable associated with cn
-    private final ClSimplexSolver removeConstraintInternal(ClConstraint cn) throws ConstraintNotFoundException, CLInternalError {
+    private final ClSimplexSolver removeConstraintInternal(ClConstraint cn, ClAbstractVariable dontRemove)
+            throws ConstraintNotFoundException, CLInternalError {
         if (fTraceOn)
             fnenterprint("removeConstraint: " + cn);
         if (fTraceOn)
@@ -450,7 +453,9 @@ public class ClSimplexSolver extends ClTableau {
             // ClSlackVariable clvEditPlus = cei.ClvEditPlus();
             // the clvEditPlus is a marker variable that is removed elsewhere
             removeColumn(clvEditMinus);
-            _editVarMap.remove(clv);
+            if (clv != dontRemove) {
+                _editVarMap.remove(clv);
+            }
         }
 
         // FIXGJB do the remove at top
