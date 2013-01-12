@@ -21,7 +21,7 @@ public class ClDouble extends Number {
         this(0.0);
     }
 
-    public final Object clone() {
+    public final ClDouble clone() {
         return new ClDouble(value);
     }
 

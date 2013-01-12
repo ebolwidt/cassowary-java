@@ -111,8 +111,7 @@ class ClTableau extends CL {
         // have that variable in their expression
         _rows.put(var, expr);
 
-        for (Enumeration e = expr.terms().keys(); e.hasMoreElements();) {
-            ClAbstractVariable clv = (ClAbstractVariable) e.nextElement();
+        for (ClAbstractVariable clv : expr.terms().keySet()) {
             insertColVar(clv, var);
             if (clv.isExternal()) {
                 _externalParametricVars.insert(clv);
@@ -158,13 +157,12 @@ class ClTableau extends CL {
             fnenterprint("removeRow:" + var);
 
         ClLinearExpression expr = (ClLinearExpression) _rows.get(var);
-        assert (expr != null);
+        assert expr != null;
 
         // For each variable in this expression, update
         // the column mapping and remove the variable from the list
         // of rows it is known to be in
-        for (Enumeration e = expr.terms().keys(); e.hasMoreElements();) {
-            ClAbstractVariable clv = (ClAbstractVariable) e.nextElement();
+        for (ClAbstractVariable clv : expr.terms().keySet()) {
             Set varset = (Set) _columns.get(clv);
             if (varset != null) {
                 if (fTraceOn)

@@ -14,6 +14,7 @@ package org.klomp.cassowary;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -422,15 +423,6 @@ public class ClSimplexSolver extends ClTableau {
         return this;
     }
 
-    // Re-initialize this solver from the original constraints, thus
-    // getting rid of any accumulated numerical problems. (Actually, we
-    // haven't definitely observed any such problems yet)
-    public final void reset() throws ExCLInternalError {
-        if (fTraceOn)
-            fnenterprint("reset");
-        throw new ExCLInternalError("reset not implemented");
-    }
-
     // Re-solve the current collection of constraints for new values for
     // the constants of the edit variables.
     // DEPRECATED: use suggestValue(...) then resolve()
@@ -568,6 +560,7 @@ public class ClSimplexSolver extends ClTableau {
     }
 
     // Originally from Michael Noth <noth@cs>
+    @Override
     public final String getInternalInfo() {
         StringBuffer retstr = new StringBuffer(super.getInternalInfo());
         retstr.append("\nSolver info:\n");
@@ -587,6 +580,7 @@ public class ClSimplexSolver extends ClTableau {
         return bstr.toString();
     }
 
+    @Override
     public final String toString() {
         StringBuffer bstr = new StringBuffer(super.toString());
         bstr.append("\n_stayPlusErrorVars: ");
@@ -708,11 +702,11 @@ public class ClSimplexSolver extends ClTableau {
         boolean foundUnrestricted = false;
         boolean foundNewRestricted = false;
 
-        final Hashtable terms = expr.terms();
+        final Map<ClAbstractVariable, ClDouble> terms = expr.terms();
 
-        for (Enumeration e = terms.keys(); e.hasMoreElements();) {
-            final ClAbstractVariable v = (ClAbstractVariable) e.nextElement();
-            final double c = ((ClDouble) terms.get(v)).doubleValue();
+        for (Map.Entry<ClAbstractVariable, ClDouble> entry : terms.entrySet()) {
+            final ClAbstractVariable v = entry.getKey();
+            double c = entry.getValue().doubleValue();
 
             if (foundUnrestricted) {
                 if (!v.isRestricted()) {
@@ -741,9 +735,9 @@ public class ClSimplexSolver extends ClTableau {
 
         double coeff = 0.0;
 
-        for (Enumeration e = terms.keys(); e.hasMoreElements();) {
-            final ClAbstractVariable v = (ClAbstractVariable) e.nextElement();
-            final double c = ((ClDouble) terms.get(v)).doubleValue();
+        for (Map.Entry<ClAbstractVariable, ClDouble> entry : terms.entrySet()) {
+            final ClAbstractVariable v = entry.getKey();
+            double c = entry.getValue().doubleValue();
             if (!v.isDummy())
                 return null; // nope, no luck
             if (!columnsHasKey(v)) {
@@ -828,10 +822,10 @@ public class ClSimplexSolver extends ClTableau {
                 if (expr.constant() < 0.0) {
                     double ratio = Double.MAX_VALUE;
                     double r;
-                    Hashtable terms = expr.terms();
-                    for (Enumeration e = terms.keys(); e.hasMoreElements();) {
-                        ClAbstractVariable v = (ClAbstractVariable) e.nextElement();
-                        double c = ((ClDouble) terms.get(v)).doubleValue();
+                    Map<ClAbstractVariable, ClDouble> terms = expr.terms();
+                    for (Map.Entry<ClAbstractVariable, ClDouble> entry : terms.entrySet()) {
+                        final ClAbstractVariable v = entry.getKey();
+                        double c = entry.getValue().doubleValue();
                         if (c > 0.0 && v.isPivotable()) {
                             double zc = zRow.coefficientFor(v);
                             r = zc / c; // FIXGJB r:= zc/c or zero, as ClSymbolicWeight-s
@@ -869,10 +863,10 @@ public class ClSimplexSolver extends ClTableau {
         ClDummyVariable dummyVar = new ClDummyVariable();
         ClSlackVariable eminus = new ClSlackVariable();
         ClSlackVariable eplus = new ClSlackVariable();
-        final Hashtable cnTerms = cnExpr.terms();
-        for (Enumeration en = cnTerms.keys(); en.hasMoreElements();) {
-            final ClAbstractVariable v = (ClAbstractVariable) en.nextElement();
-            double c = ((ClDouble) cnTerms.get(v)).doubleValue();
+        final Map<ClAbstractVariable, ClDouble> cnTerms = cnExpr.terms();
+        for (Map.Entry<ClAbstractVariable, ClDouble> entry : cnTerms.entrySet()) {
+            final ClAbstractVariable v = entry.getKey();
+            double c = entry.getValue().doubleValue();
             final ClLinearExpression e = rowExpression(v);
             if (e == null)
                 expr.addVariable(v, c);
@@ -962,10 +956,10 @@ public class ClSimplexSolver extends ClTableau {
         ClAbstractVariable exitVar = null;
         while (true) {
             double objectiveCoeff = 0;
-            Hashtable terms = zRow.terms();
-            for (Enumeration e = terms.keys(); e.hasMoreElements();) {
-                ClAbstractVariable v = (ClAbstractVariable) e.nextElement();
-                double c = ((ClDouble) terms.get(v)).doubleValue();
+            Map<ClAbstractVariable, ClDouble> terms = zRow.terms();
+            for (Map.Entry<ClAbstractVariable, ClDouble> entry : terms.entrySet()) {
+                final ClAbstractVariable v = entry.getKey();
+                double c = entry.getValue().doubleValue();
                 // if (v.isPivotable() && c < 0.0 && (entryVar == null || v.hashCode() < entryVar.hashCode())) {
                 if (v.isPivotable() && c < objectiveCoeff) {
                     objectiveCoeff = c;
