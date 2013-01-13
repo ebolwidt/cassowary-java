@@ -31,8 +31,8 @@ public class LineCC extends ConstrComponent {
         p2 = new SelPoint(solver, sx + 10, sy + 20, r, b);
         c = Color.black;
         // Add p1 and p2 to selectable points vector
-        selPoints.addElement(p1);
-        selPoints.addElement(p2);
+        selPoints.add(p1);
+        selPoints.add(p2);
         // Keep track of who owns the points
         p1.setOwner(this);
         p2.setOwner(this);
@@ -59,24 +59,14 @@ public class LineCC extends ConstrComponent {
     // got replaced, and update p1 or p2 accordingly.
     @Override
     protected void notifySelPointReplacement(int idx, SelPoint newsp) {
-        SelPoint sp = (SelPoint) selPoints.elementAt(idx);
-
-        /*
-         * System.out.println("Replacing idx " + idx + " with " + newsp);
-         */
+        SelPoint sp = selPoints.get(idx);
 
         if (p1 == sp) {
             p1 = newsp;
-            /*
-             * System.out.println("p1 replaced");
-             */
         }
 
         if (p2 == sp) {
             p2 = newsp;
-            /*
-             * System.out.println("p2 replaced");
-             */
         }
     }
 
@@ -87,14 +77,6 @@ public class LineCC extends ConstrComponent {
         sb.append(" => ");
         sb.append("[" + p1 + ", " + p2 + "]");
         return sb.toString();
-    }
-
-    // Clean-up function
-    @Override
-    public void finalize() {
-        /*
-         * System.out.println("LineCC.finalize called on " + this);
-         */
     }
 
 }

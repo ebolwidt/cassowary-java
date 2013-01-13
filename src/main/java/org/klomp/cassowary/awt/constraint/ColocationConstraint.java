@@ -33,8 +33,8 @@ public class ColocationConstraint extends Constraint {
 
     @Override
     public void draw(Graphics g) {
-        x = (int) ((SelPoint) selPointList.elementAt(0)).X().value();
-        y = (int) ((SelPoint) selPointList.elementAt(0)).Y().value();
+        x = (int) selPointList.get(0).X().value();
+        y = (int) selPointList.get(0).Y().value();
         g.setColor(CDA_G.DARK_RED);
         g.drawOval(x - 5, y - 5, 10, 10);
         // Draw inward-pointing arrows
@@ -81,7 +81,7 @@ public class ColocationConstraint extends Constraint {
         if (selPointList.size() < 1) {
             return new String("ColocationConstr at [], interestedCC = " + ccList);
         } else {
-            SelPoint sp = (SelPoint) selPointList.elementAt(0);
+            SelPoint sp = selPointList.get(0);
             String s = new String("ColocationConstr at " + sp + ", interestedCC = " + ccList);
             return s;
         }
@@ -98,11 +98,7 @@ public class ColocationConstraint extends Constraint {
     @Override
     public void notifyCCRemoval(ConstrComponent cc) {
         if (ccList.contains(cc))
-            ccList.removeElement(cc);
-
-        /*
-         * System.out.println("ColocConstr.notifyCCRem: List now " + ccList);
-         */
+            ccList.remove(cc);
     }
 
     // When a SelPoint associated with a colocation constraint goes away,
@@ -110,10 +106,7 @@ public class ColocationConstraint extends Constraint {
     @Override
     public void notifySPRemoval(SelPoint sp) {
         if (selPointList.contains(sp)) {
-            /*
-             * System.out.println("ColocConstr.notSPRem: Removing " + sp + " from " + selPointList);
-             */
-            selPointList.removeElement(sp);
+            selPointList.remove(sp);
         }
     }
 

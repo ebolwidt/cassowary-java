@@ -43,9 +43,9 @@ public class MidpointLineCC extends ConstrComponent {
         c = Color.black;
 
         // Add endpoints and midpoint to selectable point vector
-        selPoints.addElement(p1);
-        selPoints.addElement(p2);
-        selPoints.addElement(mp);
+        selPoints.add(p1);
+        selPoints.add(p2);
+        selPoints.add(mp);
 
         // Set owner of points
         p1.setOwner(this);
@@ -117,31 +117,18 @@ public class MidpointLineCC extends ConstrComponent {
     // replaced with newsp.
     @Override
     protected void notifySelPointReplacement(int idx, SelPoint newsp) {
-        SelPoint sp = (SelPoint) selPoints.elementAt(idx);
-
-        /*
-         * System.out.println("ML: Replacing idx " + idx + " with " + newsp);
-         */
+        SelPoint sp = selPoints.get(idx);
 
         if (p1 == sp) {
             p1 = newsp;
-            /*
-             * System.out.println("ML: p1 replaced");
-             */
         }
 
         if (p2 == sp) {
             p2 = newsp;
-            /*
-             * System.out.println("ML: p2 replaced");
-             */
         }
 
         if (mp == sp) {
             mp = newsp;
-            /*
-             * System.out.println("ML: mp replaced");
-             */
         }
 
         // Need to update constraints at this point
@@ -156,14 +143,6 @@ public class MidpointLineCC extends ConstrComponent {
          * System.out.println("MidpointLineCC.cleanUp invoked on " + this);
          */
         removeMPConstraints();
-    }
-
-    @Override
-    public void finalize() {
-        /*
-         * System.out.println("MidpointLineCC.finalize invoked on " + this);
-         */
-        cleanUp();
     }
 
     // Return a string version of the component

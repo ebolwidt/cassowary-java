@@ -24,7 +24,8 @@ package org.klomp.cassowary.awt.component;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.klomp.cassowary.CDA_G;
 import org.klomp.cassowary.ClSimplexSolver;
@@ -35,7 +36,7 @@ public abstract class ConstrComponent {
     public ClSimplexSolver solver;
 
     // Set of selectable points
-    public Vector selPoints;
+    public List<SelPoint> selPoints;
 
     // Flags indicating if the CC is selected or highlighted
     protected boolean isSelected, isHighlighted;
@@ -45,27 +46,23 @@ public abstract class ConstrComponent {
     public SelPoint topSP, bottomSP, leftSP, rightSP;
 
     // List of constraint objs. that care about the state of this one
-    protected Vector interConstr;
+    protected List<Constraint> interConstr;
 
     // Default constructor
     public ConstrComponent(ClSimplexSolver solver) {
         this.solver = solver;
-        selPoints = new Vector(5);
+        selPoints = new ArrayList<SelPoint>(5);
         bbox = new Rectangle();
         isHighlighted = false;
         isSelected = false;
-        interConstr = new Vector(4);
+        interConstr = new ArrayList<Constraint>(4);
 
-        topSP = null;
-        bottomSP = null;
-        leftSP = null;
-        rightSP = null;
     }
 
     // Draw method
     public void draw(Graphics g) {
         for (int a = 0; a < selPoints.size(); a++) {
-            ((SelPoint) selPoints.elementAt(a)).draw(g);
+            selPoints.get(a).draw(g);
         }
 
         // If CC is highlighted or selected, draw bounding box
@@ -86,7 +83,7 @@ public abstract class ConstrComponent {
         SelPoint cp;
 
         for (int a = 0; a < selPoints.size(); a++) {
-            cp = (SelPoint) selPoints.elementAt(a);
+            cp = selPoints.get(a);
             if (cp.getSelected()) {
                 cp.setEditConstraints();
                 nec += 2;
@@ -100,7 +97,7 @@ public abstract class ConstrComponent {
         SelPoint cp;
 
         for (int a = 0; a < selPoints.size(); a++) {
-            cp = (SelPoint) selPoints.elementAt(a);
+            cp = selPoints.get(a);
             if (cp.getSelected()) {
                 cp.removeEditConstraints();
             }
@@ -114,7 +111,7 @@ public abstract class ConstrComponent {
     public void moveBy(Point delta, EditConstantList editConstantList) {
         SelPoint cp = null;
         for (int a = 0; a < selPoints.size(); a++) {
-            cp = (SelPoint) selPoints.elementAt(a);
+            cp = selPoints.get(a);
             if (cp.getSelected()) {
                 editConstantList.registerDelta(cp, delta);
             }
@@ -128,7 +125,7 @@ public abstract class ConstrComponent {
     public void updateEditConstants() {
         SelPoint cp = null;
         for (int a = 0; a < selPoints.size(); a++) {
-            cp = (SelPoint) selPoints.elementAt(a);
+            cp = selPoints.get(a);
             cp.updateValue();
         }
         updateBoundingBox();
@@ -147,7 +144,7 @@ public abstract class ConstrComponent {
             unselect();
         }
         for (a = 0; a < selPoints.size(); a++) {
-            sp = (SelPoint) selPoints.elementAt(a);
+            sp = selPoints.get(a);
             if (sp.inside(p))
                 sp.setSelected();
         }
@@ -157,7 +154,7 @@ public abstract class ConstrComponent {
     // Clear selection on every point
     public void unselect() {
         for (int a = 0; a < selPoints.size(); a++) {
-            ((SelPoint) selPoints.elementAt(a)).clearSelected();
+            selPoints.get(a).clearSelected();
         }
         updateIsSelected();
     }
@@ -170,11 +167,11 @@ public abstract class ConstrComponent {
         if (accum == false) {
             // Unselect anything currently selected
             for (a = 0; a < selPoints.size(); a++) {
-                ((SelPoint) selPoints.elementAt(a)).clearSelected();
+                selPoints.get(a).clearSelected();
             }
         }
         for (a = 0; a < selPoints.size(); a++) {
-            sp = (SelPoint) selPoints.elementAt(a);
+            sp = selPoints.get(a);
             if (sp.inside(b))
                 sp.setSelected();
         }
@@ -183,25 +180,17 @@ public abstract class ConstrComponent {
 
     // Query all points at the (x, y) point position. Modifies the vector
     // passed as a parameter.
-    public void getSelPointsAt(Point p, Vector retv) {
-        SelPoint sp = null;
-        int a;
-
-        for (a = 0; a < selPoints.size(); a++) {
-            sp = (SelPoint) selPoints.elementAt(a);
+    public void getSelPointsAt(Point p, List<SelPoint> retv) {
+        for (SelPoint sp : selPoints) {
             if (sp.inside(p))
-                retv.addElement(sp);
+                retv.add(sp);
         }
     }
 
     // Updates the isSelected flag based on if all SelPoints are selected
     public void updateIsSelected() {
         isSelected = true;
-        int a;
-        SelPoint sp;
-
-        for (a = 0; a < selPoints.size(); a++) {
-            sp = (SelPoint) selPoints.elementAt(a);
+        for (SelPoint sp : selPoints) {
             if (!sp.getSelected()) {
                 isSelected = false;
                 return;
@@ -211,16 +200,12 @@ public abstract class ConstrComponent {
 
     // Method for highlighting point as mouse moves
     public void highlight(Point p, boolean isShiftDown) {
-        SelPoint sp = null;
-        int a;
-
         // Un-highlight anything that is only highlighted (vs selected)
-        for (a = 0; a < selPoints.size(); a++) {
-            ((SelPoint) selPoints.elementAt(a)).isHighlighted = false;
+        for (SelPoint sp : selPoints) {
+            sp.isHighlighted = false;
         }
 
-        for (a = 0; a < selPoints.size(); a++) {
-            sp = (SelPoint) selPoints.elementAt(a);
+        for (SelPoint sp : selPoints) {
             if (sp.inside(p))
                 sp.isHighlighted = true;
         }
@@ -232,16 +217,12 @@ public abstract class ConstrComponent {
     }
 
     public void highlight(Rectangle r) {
-        SelPoint sp = null;
-        int a;
-
         // Un-highlight anything that is only highlighted (vs selected)
-        for (a = 0; a < selPoints.size(); a++) {
-            ((SelPoint) selPoints.elementAt(a)).isHighlighted = false;
+        for (SelPoint sp : selPoints) {
+            sp.isHighlighted = false;
         }
 
-        for (a = 0; a < selPoints.size(); a++) {
-            sp = (SelPoint) selPoints.elementAt(a);
+        for (SelPoint sp : selPoints) {
             if (sp.inside(r))
                 sp.isHighlighted = true;
         }
@@ -249,10 +230,7 @@ public abstract class ConstrComponent {
 
     // Return the first SelPoint the given point hits, or null if none
     public SelPoint getSelPointAt(Point p) {
-        int a;
-        SelPoint sp;
-        for (a = 0; a < selPoints.size(); a++) {
-            sp = (SelPoint) selPoints.elementAt(a);
+        for (SelPoint sp : selPoints) {
             if (sp.inside(p))
                 return sp;
         }
@@ -262,23 +240,17 @@ public abstract class ConstrComponent {
     // Method to update any within-window constraints the CC or its SelPoints
     // have. Called upon a DrawPanel resize.
     public void setBorderConstraints(int r, int b) {
-        SelPoint sp = null;
-        int a;
-
-        for (a = 0; a < selPoints.size(); a++) {
-            ((SelPoint) selPoints.elementAt(a)).setBorderConstraints(r, b);
+        for (int a = 0; a < selPoints.size(); a++) {
+            selPoints.get(a).setBorderConstraints(r, b);
         }
     }
 
     // Method to return a list of all selected SelPoints the component contains.
-    public Vector getAllSelectedSelPoints() {
-        Vector v = new Vector(2);
-        int a;
-        SelPoint sp;
-        for (a = 0; a < selPoints.size(); a++) {
-            sp = (SelPoint) selPoints.elementAt(a);
+    public List<SelPoint> getAllSelectedSelPoints() {
+        List<SelPoint> v = new ArrayList<SelPoint>(2);
+        for (SelPoint sp : selPoints) {
             if (sp.getSelected())
-                v.addElement(sp);
+                v.add(sp);
         }
 
         return v;
@@ -306,7 +278,7 @@ public abstract class ConstrComponent {
          * System.out.println("CC.repSP: Before replacement, selPoints = " + selPoints);
          */
         for (a = 0; a < selPoints.size(); a++) {
-            sp = (SelPoint) selPoints.elementAt(a);
+            sp = selPoints.get(a);
             if (sp == origsp) { // Compare pointers
                 // Allow notification to subclass that a point has been replaced,
                 // so it can establish any constraints on it that are subclass-
@@ -316,7 +288,7 @@ public abstract class ConstrComponent {
                 // replaced with equivalent constraints on the new SP
                 notifySelPointReplacement(a, newsp);
                 // Replace the reference in the array
-                selPoints.setElementAt(newsp, a);
+                selPoints.set(a, newsp);
 
                 // Update the interested-in lists of each point
                 sp.removeInterestedCC(this);
@@ -346,7 +318,7 @@ public abstract class ConstrComponent {
     // Returns true if component has SelPoint sp, false otherwise
     public boolean hasSelPoint(SelPoint sp) {
         for (int a = 0; a < selPoints.size(); a++) {
-            if (sp == (SelPoint) selPoints.elementAt(a))
+            if (sp == selPoints.get(a))
                 return true;
         }
         return false;
@@ -370,7 +342,7 @@ public abstract class ConstrComponent {
         oldBottomSP = bottomSP;
 
         for (a = 0; a < selPoints.size(); a++) {
-            sp = (SelPoint) selPoints.elementAt(a);
+            sp = selPoints.get(a);
 
             if (sp.x < minx) {
                 minx = sp.x;
@@ -400,7 +372,7 @@ public abstract class ConstrComponent {
             // MORE WORK HERE
             Constraint c;
             for (a = 0; a < interConstr.size(); a++) {
-                c = (Constraint) interConstr.elementAt(a);
+                c = interConstr.get(a);
                 c.notifyCCBBoxChange(this);
             }
         }
@@ -419,7 +391,7 @@ public abstract class ConstrComponent {
         if (value == true) {
             // Select every SelPoint of component
             for (a = 0; a < selPoints.size(); a++) {
-                sp = (SelPoint) selPoints.elementAt(a);
+                sp = selPoints.get(a);
                 sp.isSelected = true;
             }
         }
@@ -428,11 +400,11 @@ public abstract class ConstrComponent {
     // Access functions for interested Constraint obj list
     public void addInterestedConstr(Constraint c) {
         if (!interConstr.contains(c))
-            interConstr.addElement(c);
+            interConstr.add(c);
     }
 
-    public Vector getInterestedConstr() {
-        return (Vector) interConstr.clone();
+    public List<Constraint> getInterestedConstr() {
+        return new ArrayList<Constraint>(interConstr);
     }
 
     public void removeInterestedConstr(Constraint c) {
@@ -440,7 +412,7 @@ public abstract class ConstrComponent {
          * System.out.println("CC.remInterConstr: Removing " + c + " from " + interConstr);
          */
         if (interConstr.contains(c))
-            interConstr.removeElement(c);
+            interConstr.remove(c);
     }
 
     // Clean up function. Should remove all CC-specific constraints.

@@ -32,15 +32,11 @@ public abstract class ClConstraint {
     }
 
     public ClConstraint(ClStrength strength) {
-        _strength = strength;
-        _weight = 1.0;
-        _times_added = 0;
+        this(strength, 1.0);
     }
 
     public ClConstraint() {
-        _strength = ClStrength.required;
-        _weight = 1.0;
-        _times_added = 0;
+        this(ClStrength.required, 1.0);
     }
 
     public abstract ClLinearExpression expression();

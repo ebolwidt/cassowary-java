@@ -12,31 +12,21 @@
 package org.klomp.cassowary;
 
 public class ClSymbolicWeight {
+    public static final ClSymbolicWeight clsZero = new ClSymbolicWeight(0.0, 0.0, 0.0);
+
+    private double[] _values;
 
     public ClSymbolicWeight(int cLevels) {
         _values = new double[cLevels];
-        // FIXGJB: ok to assume these get initialized to 0?
-        // for (int i = 0; i < cLevels; i++) {
-        // _values[i] = 0;
-        // }
     }
 
     public ClSymbolicWeight(double w1, double w2, double w3) {
-        _values = new double[3];
-        _values[0] = w1;
-        _values[1] = w2;
-        _values[2] = w3;
+        _values = new double[] { w1, w2, w3 };
     }
 
     public ClSymbolicWeight(double[] weights) {
-        final int cLevels = weights.length;
-        _values = new double[cLevels];
-        for (int i = 0; i < cLevels; i++) {
-            _values[i] = weights[i];
-        }
+        _values = weights.clone();
     }
-
-    public static final ClSymbolicWeight clsZero = new ClSymbolicWeight(0.0, 0.0, 0.0);
 
     @Override
     public ClSymbolicWeight clone() {
@@ -148,7 +138,5 @@ public class ClSymbolicWeight {
     public int cLevels() {
         return _values.length;
     }
-
-    private double[] _values;
 
 }

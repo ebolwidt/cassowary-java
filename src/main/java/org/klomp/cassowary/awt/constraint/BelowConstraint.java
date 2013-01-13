@@ -28,14 +28,12 @@ public class BelowConstraint extends AdjacencyConstraint {
     // every SelPoint in the target to be below the highest SelPoint in the src.
     @Override
     public void addConstraints() {
-        ConstrComponent srcCC, targetCC;
-
         if (ccList.size() != 2) {
             System.out.println("BelowConstr.addConstr: " + ccList.size() + " CC's, not required 2!");
             return;
         }
-        srcCC = (ConstrComponent) ccList.elementAt(0);
-        targetCC = (ConstrComponent) ccList.elementAt(1);
+        ConstrComponent srcCC = ccList.get(0);
+        ConstrComponent targetCC = ccList.get(1);
 
         int size = targetCC.selPoints.size();
         if (relConstrs.size() != size) {
@@ -47,7 +45,7 @@ public class BelowConstraint extends AdjacencyConstraint {
                 relConstrs.add(null);
             }
             for (int a = 0; a < targetCC.selPoints.size(); a++) {
-                SelPoint sp = (SelPoint) targetCC.selPoints.elementAt(a);
+                SelPoint sp = targetCC.selPoints.get(a);
                 try {
                     ClLinearInequality cli = new ClLinearInequality(sp.Y(), CL.GEQ, srcCC.bottomSP.Y());
                     relConstrs.set(a, cli);
@@ -83,8 +81,8 @@ public class BelowConstraint extends AdjacencyConstraint {
             sb.append(" ILL-FORMED CONSTRAINT WITH " + ccList.size());
             sb.append(" INSTEAD OF 2 CC's");
         } else {
-            srcCC = (ConstrComponent) ccList.elementAt(0);
-            targetCC = (ConstrComponent) ccList.elementAt(1);
+            srcCC = ccList.get(0);
+            targetCC = ccList.get(1);
             sb.append("srcCC = " + srcCC);
             sb.append(", targetCC = " + targetCC);
         }

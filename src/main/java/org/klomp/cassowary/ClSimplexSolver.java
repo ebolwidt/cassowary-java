@@ -46,7 +46,7 @@ public class ClSimplexSolver extends ClTableau {
     // Map edit variables to ClEditInfo-s.
     // ClEditInfo instances contain all the information for an
     // edit constraint (the edit plus/minus vars, the index [for old-style
-    // resolve(Vector...) interface], and the previous value.
+    // resolve(List...) interface], and the previous value.
     // (ClEditInfo replaces the parallel vectors from the Smalltalk impl.)
     private IdentityHashMap<ClVariable, ClEditInfo> _editVarMap;
 
@@ -342,9 +342,9 @@ public class ClSimplexSolver extends ClTableau {
             for (ClAbstractVariable clv : eVars) {
                 final ClLinearExpression expr = rowExpression(clv);
                 if (expr == null) {
-                    zRow.addVariable(clv, -cn.weight() * cn.strength().symbolicWeight().asDouble(), _objective, this);
+                    zRow.addVariable(clv, -cn.weight() * cn.strength().getSymbolicWeight().asDouble(), _objective, this);
                 } else { // the error variable was in the basis
-                    zRow.addExpression(expr, -cn.weight() * cn.strength().symbolicWeight().asDouble(), _objective, this);
+                    zRow.addExpression(expr, -cn.weight() * cn.strength().getSymbolicWeight().asDouble(), _objective, this);
                 }
             }
         }
@@ -930,7 +930,7 @@ public class ClSimplexSolver extends ClTableau {
                 eminus = new ClSlackVariable(_slackCounter, "em");
                 expr.setVariable(eminus, 1.0);
                 ClLinearExpression zRow = rowExpression(_objective);
-                ClSymbolicWeight sw = cn.strength().symbolicWeight().times(cn.weight());
+                ClSymbolicWeight sw = cn.strength().getSymbolicWeight().times(cn.weight());
                 zRow.setVariable(eminus, sw.asDouble());
                 insertErrorVar(cn, eminus);
                 noteAddedVariable(eminus, _objective);
@@ -953,7 +953,7 @@ public class ClSimplexSolver extends ClTableau {
                 expr.setVariable(eminus, 1.0);
                 _markerVars.put(cn, eplus);
                 ClLinearExpression zRow = rowExpression(_objective);
-                ClSymbolicWeight sw = cn.strength().symbolicWeight().times(cn.weight());
+                ClSymbolicWeight sw = cn.strength().getSymbolicWeight().times(cn.weight());
                 double swCoeff = sw.asDouble();
                 if (swCoeff == 0) {
                     if (fTraceOn)

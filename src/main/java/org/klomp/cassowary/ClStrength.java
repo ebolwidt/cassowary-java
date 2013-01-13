@@ -12,41 +12,6 @@
 package org.klomp.cassowary;
 
 public class ClStrength {
-    public ClStrength(String name, ClSymbolicWeight symbolicWeight) {
-        _name = name;
-        _symbolicWeight = symbolicWeight;
-    }
-
-    public ClStrength(String name, double w1, double w2, double w3) {
-        _name = name;
-        _symbolicWeight = new ClSymbolicWeight(w1, w2, w3);
-    }
-
-    public boolean isRequired() {
-        return (this == required);
-    }
-
-    @Override
-    public String toString() {
-        return name() + (!isRequired() ? (":" + symbolicWeight()) : "");
-    }
-
-    public ClSymbolicWeight symbolicWeight() {
-        return _symbolicWeight;
-    }
-
-    public String name() {
-        return _name;
-    }
-
-    public void set_name(String name) {
-        _name = name;
-    }
-
-    public void set_symbolicWeight(ClSymbolicWeight symbolicWeight) {
-        _symbolicWeight = symbolicWeight;
-    }
-
     public static final ClStrength required = new ClStrength("<Required>", 1000, 1000, 1000);
 
     public static final ClStrength strong = new ClStrength("strong", 1.0, 0.0, 0.0);
@@ -58,5 +23,31 @@ public class ClStrength {
     private String _name;
 
     private ClSymbolicWeight _symbolicWeight;
+
+    public ClStrength(String name, ClSymbolicWeight symbolicWeight) {
+        _name = name;
+        _symbolicWeight = symbolicWeight;
+    }
+
+    public ClStrength(String name, double w1, double w2, double w3) {
+        this(name, new ClSymbolicWeight(w1, w2, w3));
+    }
+
+    public boolean isRequired() {
+        return (this == required);
+    }
+
+    @Override
+    public String toString() {
+        return getName() + (!isRequired() ? (":" + getSymbolicWeight()) : "");
+    }
+
+    public ClSymbolicWeight getSymbolicWeight() {
+        return _symbolicWeight;
+    }
+
+    public String getName() {
+        return _name;
+    }
 
 }

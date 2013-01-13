@@ -9,17 +9,18 @@
 package org.klomp.cassowary.awt.component;
 
 import java.awt.Point;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.klomp.cassowary.ClDouble;
 import org.klomp.cassowary.ClVariable;
 
 public class EditConstantList {
-    // Vector of edit constants (ClDouble instances)
-    public Vector ec;
-    // Vector listing SelPoint <-> ec associations. 2 * Index in list is
+    /** List of edit constants. */
+    public List<ClDouble> ec;
+    // Listing SelPoint <-> ec associations. 2 * Index in list is
     // starting index in ec.
-    private Vector selPointAssocList;
+    private List<SelPoint> selPointAssocList;
 
     // Default constructor
     public EditConstantList() {
@@ -30,13 +31,13 @@ public class EditConstantList {
         if (n < 1)
             n = 1;
 
-        ec = new Vector(n);
+        ec = new ArrayList<ClDouble>(n);
 
         for (int a = 0; a < n; a++) {
-            ec.addElement(new ClDouble(0.0));
+            ec.add(new ClDouble(0.0));
         }
 
-        selPointAssocList = new Vector(n);
+        selPointAssocList = new ArrayList<SelPoint>(n);
     }
 
     public void registerDelta(ClVariable v, double delta) {
@@ -55,14 +56,14 @@ public class EditConstantList {
         // System.out.println(selPointAssocList);
 
         for (a = 0; a < selPointAssocList.size(); a++) {
-            if (sp == (SelPoint) selPointAssocList.elementAt(a)) {
+            if (sp == selPointAssocList.get(a)) {
                 spIdx = a;
                 break;
             }
         }
         if (spIdx == -1) {
             // sp not in assoc list, so add it
-            selPointAssocList.addElement(sp);
+            selPointAssocList.add(sp);
             spIdx = selPointAssocList.indexOf(sp);
         }
         // System.out.println("ECL.regDelta: spIdx = " + spIdx);
@@ -70,9 +71,9 @@ public class EditConstantList {
         // Store X at 2 * spIdx, Y at 2 * spIdx + 1
 
         ClDouble d;
-        d = (ClDouble) ec.elementAt(2 * spIdx);
+        d = ec.get(2 * spIdx);
         d.setValue(sp.clX.value() + delta.x);
-        d = (ClDouble) ec.elementAt(2 * spIdx + 1);
+        d = ec.get(2 * spIdx + 1);
         d.setValue(sp.clY.value() + delta.y);
 
     }
@@ -80,19 +81,16 @@ public class EditConstantList {
     // Set the size of the vector to size n, and allocate extra elements
     // if needed. Also clear the SP association array.
     public void setSize(int n) {
-        int oldSize = ec.size();
-        int numNewElems = n - oldSize;
-        int a;
-
-        ec.setSize(n);
-
-        if (numNewElems > 0)
-            for (a = oldSize; a < n; a++)
-                ec.setElementAt(new ClDouble(0.0), a);
+        while (ec.size() > n) {
+            ec.remove(ec.size() - 1);
+        }
+        while (ec.size() < n) {
+            ec.add(new ClDouble(0.0));
+        }
 
         reset();
 
-        selPointAssocList.setSize(0);
+        selPointAssocList.clear();
     }
 
     // Convert an ECL to a string
@@ -101,11 +99,11 @@ public class EditConstantList {
         String retstr = new String("ECL: size = " + ec.size());
         retstr = retstr.concat(", Elems = [");
         for (int a = 0; a < ec.size() - 1; a++) {
-            retstr = retstr.concat(String.valueOf(((ClDouble) ec.elementAt(a)).doubleValue()));
+            retstr = retstr.concat(String.valueOf(ec.get(a).doubleValue()));
             retstr = retstr.concat(", ");
         }
         if (ec.size() > 0)
-            retstr = retstr.concat(String.valueOf(((ClDouble) ec.elementAt(ec.size() - 1)).doubleValue()));
+            retstr = retstr.concat(String.valueOf(ec.get(ec.size() - 1).doubleValue()));
 
         retstr = retstr.concat("]");
 

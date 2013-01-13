@@ -34,8 +34,8 @@ public class AboveConstraint extends AdjacencyConstraint {
             System.out.println("AboveConstr.addConstr: " + ccList.size() + " CC's, not required 2!");
             return;
         }
-        srcCC = (ConstrComponent) ccList.elementAt(0);
-        targetCC = (ConstrComponent) ccList.elementAt(1);
+        srcCC = ccList.get(0);
+        targetCC = ccList.get(1);
 
         int size = targetCC.selPoints.size();
         if (relConstrs.size() != size) {
@@ -48,7 +48,7 @@ public class AboveConstraint extends AdjacencyConstraint {
             }
 
             for (int a = 0; a < size; a++) {
-                SelPoint sp = (SelPoint) targetCC.selPoints.elementAt(a);
+                SelPoint sp = targetCC.selPoints.get(a);
                 try {
                     ClLinearInequality cli = new ClLinearInequality(sp.Y(), CL.LEQ, srcCC.topSP.Y());
                     relConstrs.set(a, cli);
@@ -83,8 +83,8 @@ public class AboveConstraint extends AdjacencyConstraint {
             sb.append(" ILL-FORMED CONSTRAINT WITH " + ccList.size());
             sb.append(" INSTEAD OF 2 CC's");
         } else {
-            srcCC = (ConstrComponent) ccList.elementAt(0);
-            targetCC = (ConstrComponent) ccList.elementAt(1);
+            srcCC = ccList.get(0);
+            targetCC = ccList.get(1);
             sb.append("srcCC = " + srcCC);
             sb.append(", targetCC = " + targetCC);
         }

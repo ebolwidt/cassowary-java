@@ -38,8 +38,8 @@ public class AnchorConstraint extends Constraint {
 
     @Override
     public void draw(Graphics g) {
-        x = (int) ((SelPoint) selPointList.elementAt(0)).X().value();
-        y = (int) ((SelPoint) selPointList.elementAt(0)).Y().value();
+        x = (int) selPointList.get(0).X().value();
+        y = (int) selPointList.get(0).Y().value();
         // g.setColor(Color.green);
         g.setColor(Color.red.darker());
         // g.drawLine(x - 5, y - 5, x + 5, y + 5);
@@ -62,7 +62,7 @@ public class AnchorConstraint extends Constraint {
     // Add constraints to solver
     @Override
     public void addConstraints() {
-        SelPoint sp = (SelPoint) selPointList.elementAt(0);
+        SelPoint sp = selPointList.get(0);
         if (sp == null)
             return;
         if (stayConstrX == null)
@@ -101,7 +101,7 @@ public class AnchorConstraint extends Constraint {
     // Convert object to a string
     @Override
     public String toString() {
-        SelPoint sp = (SelPoint) selPointList.elementAt(0);
+        SelPoint sp = selPointList.get(0);
         return new String("Anchor:" + sp);
     }
 
@@ -122,12 +122,12 @@ public class AnchorConstraint extends Constraint {
         int a;
 
         for (a = 0; a < selPointList.size(); a++) {
-            sp = (SelPoint) selPointList.elementAt(a);
+            sp = selPointList.get(a);
             if (sp == oldsp) {
                 // Remove old constraints
                 removeConstraints();
                 // Replace element
-                selPointList.setElementAt(newsp, a);
+                selPointList.set(a, newsp);
                 // Update constraints
                 addConstraints();
             }
@@ -142,7 +142,7 @@ public class AnchorConstraint extends Constraint {
         if (selPointList.size() < 1)
             return true;
 
-        sp = (SelPoint) selPointList.elementAt(0);
+        sp = selPointList.get(0);
 
         if (sp == null)
             return true;

@@ -20,7 +20,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.klomp.cassowary.CDA_G;
 import org.klomp.cassowary.CL;
@@ -45,9 +46,9 @@ public class SelPoint implements Cloneable {
     private static int nextID = 0;
 
     // Which CC(s) have an interest in this SelPoint?
-    protected Vector interCC;
+    protected List<ConstrComponent> interCC;
     // Which constraint objs. have an interest in this SelPoint?
-    protected Vector interConstr;
+    protected List<Constraint> interConstr;
 
     // Which CC owns this SelPoint (IE is in charge of deleting it)
     protected ConstrComponent owner;
@@ -85,8 +86,8 @@ public class SelPoint implements Cloneable {
         id = nextID++;
 
         // Initialize ownership, interested lists
-        interCC = new Vector(4);
-        interConstr = new Vector(4);
+        interCC = new ArrayList<ConstrComponent>(4);
+        interConstr = new ArrayList<Constraint>(4);
         owner = null;
 
         // Set stay constraints on point
@@ -152,8 +153,8 @@ public class SelPoint implements Cloneable {
             System.out.println("SelPoint.setBC: CLConstraintNotFound!");
         }
         try {
-            rightBorderConstraint = new ClLinearInequality(clX, CL.LEQ, (double) r);
-            bottomBorderConstraint = new ClLinearInequality(clY, CL.LEQ, (double) b);
+            rightBorderConstraint = new ClLinearInequality(clX, CL.LEQ, r);
+            bottomBorderConstraint = new ClLinearInequality(clY, CL.LEQ, b);
             solver.addConstraint(rightBorderConstraint);
             solver.addConstraint(bottomBorderConstraint);
         } catch (CLInternalError e) {
@@ -296,17 +297,17 @@ public class SelPoint implements Cloneable {
     public SelPoint clone() {
         SelPoint s = new SelPoint(this.solver, this.x, this.y, this.isSelected, this.isHighlighted, 400, 400);
         s.owner = this.owner;
-        s.interCC = (Vector) this.interCC.clone();
-        s.interConstr = (Vector) this.interConstr.clone();
+        s.interCC = new ArrayList<ConstrComponent>(this.interCC);
+        s.interConstr = new ArrayList<Constraint>(this.interConstr);
 
-        s.interConstr.removeAllElements();
+        s.interConstr.clear();
 
         return s;
     }
 
     // Public function to allow a copy of a SelPoint to be made
     public SelPoint copy() {
-        return (SelPoint) this.clone();
+        return this.clone();
     }
 
     // Return a string containing full information about a SelPoint.
@@ -318,7 +319,7 @@ public class SelPoint implements Cloneable {
         ConstrComponent cc;
         Constraint c;
         for (a = 0; a < interCC.size(); a++) {
-            cc = (ConstrComponent) interCC.elementAt(a);
+            cc = interCC.get(a);
             if (cc == owner)
                 sb.append("[" + cc + "]");
             else
@@ -328,7 +329,7 @@ public class SelPoint implements Cloneable {
         }
         sb.append("}, Con { ");
         for (a = 0; a < interConstr.size(); a++) {
-            c = (Constraint) interConstr.elementAt(a);
+            c = interConstr.get(a);
             sb.append(c);
             if (a != (interConstr.size() - 1))
                 sb.append(", ");
@@ -354,7 +355,7 @@ public class SelPoint implements Cloneable {
         int a;
         Constraint c;
         for (a = 0; a < interConstr.size(); a++) {
-            c = (Constraint) interConstr.elementAt(a);
+            c = interConstr.get(a);
             c.notifySPRemoval(this);
         }
         removeAllConstraints();
@@ -378,32 +379,32 @@ public class SelPoint implements Cloneable {
     }
 
     // Accessor functions for interested CC's
-    public Vector getInterestedCC() {
-        return (Vector) interCC.clone();
+    public List<ConstrComponent> getInterestedCC() {
+        return new ArrayList<ConstrComponent>(interCC);
     }
 
     public void addInterestedCC(ConstrComponent c) {
         if (!interCC.contains(c))
-            interCC.addElement(c);
+            interCC.add(c);
     }
 
     public void removeInterestedCC(ConstrComponent c) {
         if (interCC.contains(c))
-            interCC.removeElement(c);
+            interCC.remove(c);
     }
 
-    public Vector getInterestedConstr() {
-        return (Vector) interConstr.clone();
+    public List<Constraint> getInterestedConstr() {
+        return new ArrayList<Constraint>(interConstr);
     }
 
     public void addInterestedConstr(Constraint c) {
         if (!interConstr.contains(c))
-            interConstr.addElement(c);
+            interConstr.add(c);
     }
 
     public void removeInterestedConstr(Constraint c) {
         if (interConstr.contains(c))
-            interConstr.removeElement(c);
+            interConstr.remove(c);
     }
 
 }

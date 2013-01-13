@@ -32,8 +32,8 @@ public class CircleCC extends ConstrComponent {
         lowerRight = new SelPoint(solver, sx + 10, sy + 10, r, b);
         c = Color.black;
         // Add bbox corners
-        selPoints.addElement(upperLeft);
-        selPoints.addElement(lowerRight);
+        selPoints.add(upperLeft);
+        selPoints.add(lowerRight);
         // Keep track of who owns the points
         upperLeft.setOwner(this);
         upperLeft.addInterestedCC(this);
@@ -61,23 +61,13 @@ public class CircleCC extends ConstrComponent {
     // have been replaced, and update it accordingly.
     @Override
     protected void notifySelPointReplacement(int idx, SelPoint newsp) {
-        SelPoint sp = (SelPoint) selPoints.elementAt(idx);
-
-        /*
-         * System.out.println("Replacing idx " + idx + " with " + newsp);
-         */
+        SelPoint sp = selPoints.get(idx);
 
         if (upperLeft == sp) {
             upperLeft = newsp;
-            /*
-             * System.out.println("upperLeft replaced");
-             */
         }
         if (lowerRight == sp) {
             lowerRight = newsp;
-            /*
-             * System.out.println("lowerRight replaced");
-             */
         }
     }
 
@@ -88,14 +78,6 @@ public class CircleCC extends ConstrComponent {
         sb.append(" => ");
         sb.append("UL: " + upperLeft + ", LR: " + lowerRight);
         return sb.toString();
-    }
-
-    // Clean-up function
-    @Override
-    public void finalize() {
-        /*
-         * System.out.println("CircleCC.finalize called on " + this);
-         */
     }
 
 }

@@ -23,7 +23,6 @@
 
 package org.klomp.cassowary.awt;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -35,7 +34,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.image.ImageObserver;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.klomp.cassowary.CLInternalError;
 import org.klomp.cassowary.ClSimplexSolver;
@@ -80,17 +80,17 @@ class DrawPanel extends Panel {
     int numEC;
 
     // List of active components
-    Vector curCC;
+    List<ConstrComponent> curCC;
 
     // List of active Constraint objects
-    Vector curConstr;
+    List<Constraint> curConstr;
 
     // The instance of the Cassowary solver. The DrawPanel owns it.
     ClSimplexSolver solver;
 
     // Offset into the array of SP's at a given point. Used for cycling
     // through stacked SP's w/ repeated mouse clicks
-    private int spVectorOffset;
+    private int spListOffset;
 
     // List of edit move constraint values. Owned by DrawPanel, but passed
     // into CC's so the target edit constant values can be collected into one
@@ -116,9 +116,6 @@ class DrawPanel extends Panel {
     DrawPanel() {
         this.solver = new ClSimplexSolver();
 
-        LayoutManager layout = new BorderLayout();
-        // listener = actionListener;
-
         drawPanelMML = new DPMouseMotionListener(this);
         drawPanelKL = new DPKeyListener(this);
         mouseStart = new Point();
@@ -134,9 +131,9 @@ class DrawPanel extends Panel {
         desiredWidth = 600;
         desiredHeight = 500;
 
-        curCC = new Vector(10);
+        curCC = new ArrayList<ConstrComponent>(10);
 
-        curConstr = new Vector(10);
+        curConstr = new ArrayList<Constraint>(10);
 
         placingComponent = false;
         placingComponentEndSP = false;
@@ -154,7 +151,7 @@ class DrawPanel extends Panel {
         paintBuffer = null;
         paintBufferObserver = null;
 
-        spVectorOffset = 0;
+        spListOffset = 0;
     }
 
     // Mouse position update function, used w/ drag events
@@ -164,14 +161,6 @@ class DrawPanel extends Panel {
     }
 
     public void setDesiredSize(int dW, int dH) {
-        /*
-         * System.out.println("DP.setDS: (" + dW + ", " + dH + ")");
-         */
-        Dimension d = getSize();
-        /*
-         * System.out.println("DP.setDS: Current size = (" + d.width + ", " + d.height + ")");
-         * System.out.println("DP.setDS: Parent size = " + getParent().getSize());
-         */
 
         desiredWidth = dW;
         desiredHeight = dH;
@@ -195,7 +184,7 @@ class DrawPanel extends Panel {
         int a;
         ConstrComponent c;
         for (a = 0; a < curCC.size(); a++) {
-            c = (ConstrComponent) curCC.elementAt(a);
+            c = curCC.get(a);
             c.setBorderConstraints(desiredWidth, desiredHeight);
         }
     }
@@ -224,14 +213,14 @@ class DrawPanel extends Panel {
 
         // Draw every CC
         for (a = 0; a < curCC.size(); a++) {
-            c = (ConstrComponent) curCC.elementAt(a);
+            c = curCC.get(a);
             c.draw(paintBufferGraphics);
         }
 
         // Draw every Constraint
         Constraint constr;
         for (a = 0; a < curConstr.size(); a++) {
-            constr = (Constraint) curConstr.elementAt(a);
+            constr = curConstr.get(a);
             constr.draw(paintBufferGraphics);
         }
 
@@ -262,56 +251,47 @@ class DrawPanel extends Panel {
 
     // Helper function to build a list of all selected CC's
     // (based solely on isSelected flag of a CC)
-    public Vector getAllSelectedCC() {
+    public List<ConstrComponent> getAllSelectedCC() {
+        List<ConstrComponent> v = new ArrayList<ConstrComponent>(4);
 
-        int a;
-        Vector v = new Vector(4);
-        ConstrComponent c;
-
-        for (a = 0; a < curCC.size(); a++) {
-            c = (ConstrComponent) curCC.elementAt(a);
+        for (ConstrComponent c : curCC) {
             if (c.getisSelected())
-                v.addElement(c);
+                v.add(c);
         }
         return v;
     }
 
     // Helper function to get all selected constraint objs (based solely on
     // the isSelected flag)
-    public Vector getAllSelectedConstr() {
-        int a;
-        Vector retv = new Vector(4);
-        Constraint c;
+    public List<Constraint> getAllSelectedConstr() {
 
-        for (a = 0; a < curConstr.size(); a++) {
-            c = (Constraint) curConstr.elementAt(a);
+        List<Constraint> retv = new ArrayList<Constraint>(4);
+
+        for (Constraint c : curConstr) {
             if (c.getisSelected())
-                retv.addElement(c);
+                retv.add(c);
         }
 
         return retv;
     }
 
     // Helper function to build a list of all selected SelPoints
-    public Vector getAllSelectedSelPoints() {
-        Vector allSelPoints = new Vector(10), v;
-        int a, nsp;
-        ConstrComponent c;
-        SelPoint sp;
+    public List<SelPoint> getAllSelectedSelPoints() {
+        List<SelPoint> allSelPoints = new ArrayList<SelPoint>(10);
 
-        for (a = 0; a < curCC.size(); a++) {
-            c = (ConstrComponent) curCC.elementAt(a);
-            v = c.getAllSelectedSelPoints();
+        for (int a = 0; a < curCC.size(); a++) {
+            ConstrComponent c = curCC.get(a);
+            List<SelPoint> v = c.getAllSelectedSelPoints();
             /*
              * System.out.println("DP.getAllSelSP: getAllSelSP for CC " + c + " = " + v);
              */
-            for (nsp = 0; nsp < v.size(); nsp++) {
-                sp = (SelPoint) v.elementAt(nsp);
+            for (int nsp = 0; nsp < v.size(); nsp++) {
+                SelPoint sp = v.get(nsp);
                 /*
                  * System.out.println("DP.getAllSelSP: Considering " + sp + " to add to " + allSelPoints);
                  */
                 if (!allSelPoints.contains(sp))
-                    allSelPoints.addElement(sp);
+                    allSelPoints.add(sp);
             }
         }
 
@@ -320,13 +300,10 @@ class DrawPanel extends Panel {
 
     // Create a new constraint of the given type
     public void createNewConstraint(String cc) {
-        /*
-         * System.out.println("DP.createNConstr: " + cc);
-         */
         int a;
 
-        // Vector of all selected SelPoints
-        Vector v, allSelPoints = null;
+        // All selected SelPoints
+        List<SelPoint> allSelPoints = null;
         SelPoint sp;
         ConstrComponent constrc;
 
@@ -340,9 +317,9 @@ class DrawPanel extends Panel {
 
             Constraint ac;
             for (a = 0; a < allSelPoints.size(); a++) {
-                sp = (SelPoint) allSelPoints.elementAt(a);
+                sp = allSelPoints.get(a);
                 ac = new AnchorConstraint(solver, sp);
-                curConstr.addElement(ac);
+                curConstr.add(ac);
                 // Associate each SelPoint w/ its constraint
                 sp.addInterestedConstr(ac);
             }
@@ -417,7 +394,7 @@ class DrawPanel extends Panel {
         }
 
         if (cc.equals("LeftAlign")) {
-            v = getAllSelectedCC();
+            List<ConstrComponent> v = getAllSelectedCC();
             // Need at least 2 CC's to align
             if (v.size() < 2) {
                 System.out.println("Need at least 2 selected CCs to align");
@@ -428,10 +405,10 @@ class DrawPanel extends Panel {
 
             // Make sure each CC cares about the constraint
             for (a = 0; a < v.size(); a++) {
-                constrc = (ConstrComponent) v.elementAt(a);
+                constrc = v.get(a);
                 constrc.addInterestedConstr(ac);
             }
-            curConstr.addElement(ac);
+            curConstr.add(ac);
             resatisfyConstraints();
 
             repaint();
@@ -439,7 +416,7 @@ class DrawPanel extends Panel {
         }
 
         if (cc.equals("TopAlign")) {
-            v = getAllSelectedCC();
+            List<ConstrComponent> v = getAllSelectedCC();
             // Need at least 2 CC's to align
             if (v.size() < 2) {
                 System.out.println("Need at least 2 selected CCs to align");
@@ -450,10 +427,10 @@ class DrawPanel extends Panel {
 
             // Make sure each CC cares about the constraint
             for (a = 0; a < v.size(); a++) {
-                constrc = (ConstrComponent) v.elementAt(a);
+                constrc = v.get(a);
                 constrc.addInterestedConstr(ac);
             }
-            curConstr.addElement(ac);
+            curConstr.add(ac);
             resatisfyConstraints();
 
             repaint();
@@ -461,7 +438,7 @@ class DrawPanel extends Panel {
         }
 
         if (cc.equals("RightAlign")) {
-            v = getAllSelectedCC();
+            List<ConstrComponent> v = getAllSelectedCC();
             // Need at least 2 CC's to align
             if (v.size() < 2) {
                 System.out.println("Need at least 2 selected CCs to align");
@@ -472,10 +449,10 @@ class DrawPanel extends Panel {
 
             // Make sure each CC cares about the constraint
             for (a = 0; a < v.size(); a++) {
-                constrc = (ConstrComponent) v.elementAt(a);
+                constrc = v.get(a);
                 constrc.addInterestedConstr(ac);
             }
-            curConstr.addElement(ac);
+            curConstr.add(ac);
             resatisfyConstraints();
 
             repaint();
@@ -483,7 +460,7 @@ class DrawPanel extends Panel {
         }
 
         if (cc.equals("BottomAlign")) {
-            v = getAllSelectedCC();
+            List<ConstrComponent> v = getAllSelectedCC();
             // Need at least 2 CC's to align
             if (v.size() < 2) {
                 System.out.println("Need at least 2 selected CCs to align");
@@ -494,10 +471,10 @@ class DrawPanel extends Panel {
 
             // Make sure each CC cares about the constraint
             for (a = 0; a < v.size(); a++) {
-                constrc = (ConstrComponent) v.elementAt(a);
+                constrc = v.get(a);
                 constrc.addInterestedConstr(ac);
             }
-            curConstr.addElement(ac);
+            curConstr.add(ac);
             resatisfyConstraints();
 
             repaint();
@@ -531,15 +508,8 @@ class DrawPanel extends Panel {
     // Establish a relational constraint between all selected CC's and the
     // specified target CC
     public void establishRelationalConstr(ConstrComponent target) {
-        Vector v = getAllSelectedCC();
-        ConstrComponent c;
+        List<ConstrComponent> v = getAllSelectedCC();
         Constraint rc;
-        int a;
-
-        /*
-         * System.out.println("DP.estRelConstr: selectedCC = " + v); System.out.println("DP.estRelConstr: targetCC = " + target);
-         * System.out.println("DP.estRelConstr: type = " + relationalConstrType);
-         */
 
         if (v.contains(target)) {
             /*
@@ -550,8 +520,7 @@ class DrawPanel extends Panel {
         }
 
         // For each selected CC, establish a relational constraint
-        for (a = 0; a < v.size(); a++) {
-            c = (ConstrComponent) v.elementAt(a);
+        for (ConstrComponent c : v) {
             if (relationalConstrType.equals("Above"))
                 rc = new AboveConstraint(solver, c, target);
             else if (relationalConstrType.equals("Below"))
@@ -565,7 +534,7 @@ class DrawPanel extends Panel {
                 stopPickingTargetCC();
                 return;
             }
-            curConstr.addElement(rc);
+            curConstr.add(rc);
         }
 
         // Done w/relational constraint, so don't need to pick it anymore
@@ -578,53 +547,41 @@ class DrawPanel extends Panel {
     // Establish a colocation constraint on a vector of SelPoints.
     // Does not allow a constraint to be established if any in stack
     // belong to the same CC.
-    private void establishColocationConstraint(Vector allSelPoints) {
-        int a, b;
-        Vector v, CCofStack;
+    private void establishColocationConstraint(List<SelPoint> allSelPoints) {
+        int a;
+        List<ConstrComponent> CCofStack;
         SelPoint basesp, sp;
-        Constraint c;
-        ConstrComponent constrc;
-
-        /*
-         * System.out.println("DP.estColC: allSelPoints = " + allSelPoints);
-         */
 
         if (allSelPoints.size() < 2) {
             // Can't have colocation constraint with only 1 point!
             return;
         }
 
-        CCofStack = new Vector(4);
+        CCofStack = new ArrayList<ConstrComponent>(4);
         for (a = 0; a < allSelPoints.size(); a++) {
-            sp = (SelPoint) allSelPoints.elementAt(a);
-            v = sp.getInterestedCC();
-            for (b = 0; b < v.size(); b++) {
-                constrc = (ConstrComponent) v.elementAt(b);
+            sp = allSelPoints.get(a);
+            for (ConstrComponent constrc : sp.getInterestedCC()) {
                 if (CCofStack.contains(constrc)) {
                     /*
                      * System.out.println("CC " + constrc + " shared in stack!");
                      */
                     return;
                 } else {
-                    CCofStack.addElement(constrc);
+                    CCofStack.add(constrc);
                 }
             }
         }
 
         /*
-         * // Arbitrarily let the first selected SP be the base basesp = (SelPoint) allSelPoints.elementAt(0);
+         * // Arbitrarily let the first selected SP be the base basesp = (SelPoint) allSelPoints.get(0);
          */
 
         // Scan the vector of points and pick the best one to use as the base.
         // Currently, choose any point w/ an anchor constraint
-        v = new Vector(4);
         basesp = null;
-        Vector interConstr = new Vector(4);
         for (a = 0; a < allSelPoints.size(); a++) {
-            sp = (SelPoint) allSelPoints.elementAt(a);
-            interConstr = sp.getInterestedConstr();
-            for (b = 0; b < interConstr.size(); b++) {
-                c = (Constraint) interConstr.elementAt(b);
+            sp = allSelPoints.get(a);
+            for (Constraint c : sp.getInterestedConstr()) {
                 if (c instanceof AnchorConstraint) {
                     if (basesp != null) {
                         System.out.println("Two points to merge have anchor constraints:");
@@ -632,38 +589,28 @@ class DrawPanel extends Panel {
                     }
                     basesp = sp;
                 }
-                if (!v.contains(c))
-                    v.addElement(c);
             }
         }
-        /*
-         * System.out.println("Constraints interested in SP stack: " + v);
-         */
+
         if (basesp == null) {
             // Just pick first point as base
-            basesp = (SelPoint) allSelPoints.elementAt(0);
+            basesp = allSelPoints.get(0);
         }
-        /*
-         * System.out.println("Base sp = " + basesp);
-         */
 
         // Add a colocation constraint obj. to the base point, if it doesn't
         // already have one
         ColocationConstraint coloc = null;
-        v = (Vector) basesp.getInterestedConstr();
-        for (a = 0; a < v.size(); a++) {
-            if (v.elementAt(a) instanceof ColocationConstraint) {
-                coloc = (ColocationConstraint) v.elementAt(a);
+        for (Constraint cons : basesp.getInterestedConstr()) {
+            if (cons instanceof ColocationConstraint) {
+                coloc = (ColocationConstraint) cons;
                 break;
             }
         }
         if (coloc == null) {
             coloc = new ColocationConstraint(solver, basesp);
             basesp.addInterestedConstr(coloc);
-            curConstr.addElement(coloc);
-            v = (Vector) basesp.getInterestedCC();
-            for (a = 0; a < v.size(); a++) {
-                constrc = (ConstrComponent) v.elementAt(a);
+            curConstr.add(coloc);
+            for (ConstrComponent constrc : basesp.getInterestedCC()) {
                 coloc.addCC(constrc);
                 constrc.addInterestedConstr(coloc);
             }
@@ -672,67 +619,42 @@ class DrawPanel extends Panel {
         // For each other SelPoint, notify any CC's and constraints that
         // care about it that it is being replaced
         for (a = 0; a < allSelPoints.size(); a++) {
-            sp = (SelPoint) allSelPoints.elementAt(a);
+            sp = allSelPoints.get(a);
             if (sp == basesp) {
                 // Skip the base SP
                 continue;
             }
-            v = (Vector) sp.getInterestedCC();
-            /*
-             * System.out.println("For " + sp.fullInfo() + ":"); System.out.println(" v = " + v);
-             */
-            for (b = 0; b < v.size(); b++) {
-                constrc = (ConstrComponent) v.elementAt(b);
-                /*
-                 * System.out.println("Replacing " + sp + " with " + basesp + " in CC " + constrc);
-                 */
+            for (ConstrComponent constrc : sp.getInterestedCC()) {
                 constrc.replaceSelPoint(sp, basesp);
                 constrc.addInterestedConstr(coloc);
                 coloc.addCC(constrc);
             }
 
-            v = sp.getInterestedConstr();
-            for (b = 0; b < v.size(); b++) {
-                c = (Constraint) v.elementAt(b);
+            for (Constraint c : sp.getInterestedConstr()) {
                 c.replaceSelPoint(sp, basesp);
             }
             // We can also discard the replaced point
-            /*
-             * System.out.println("DP.crNewConstr.Colocation: Discarding " + sp.fullInfo());
-             */
             sp.cleanUp();
         }
 
         // Every CC that was affected by the colocation constraint needs to
         // have its bounding box updated
-        /*
-         * System.out.println("Everything associated with basesp: " + basesp.fullInfo());
-         */
-        v = basesp.getInterestedCC();
-        for (a = 0; a < v.size(); a++) {
-            constrc = (ConstrComponent) v.elementAt(a);
+        for (ConstrComponent constrc : basesp.getInterestedCC()) {
             constrc.updateEditConstants();
         }
 
         // We also need to scan all constraints in case multiple colocation constrs
         // got merged.
-        v = new Vector(4);
-        /*
-         * System.out.println("curConstr = " + curConstr);
-         */
-        for (a = 0; a < curConstr.size(); a++) {
-            c = (Constraint) curConstr.elementAt(a);
+        List<Constraint> v = new ArrayList<Constraint>(4);
+        for (Constraint c : curConstr) {
             if (c.canDiscard()) {
-                /*
-                 * System.out.println("DP.estColocC: Can discard " + c);
-                 */
                 c.cleanUp();
-                v.addElement(c);
+                v.add(c);
             }
         }
-        for (a = 0; a < v.size(); a++)
-            curConstr.removeElement(v.elementAt(a));
-
+        for (Constraint c : v) {
+            curConstr.remove(c);
+        }
     }
 
     // Create a new CC of the given type. Process unselects all selections.
@@ -774,7 +696,7 @@ class DrawPanel extends Panel {
 
     // Add a new CC to the panel
     public void addConstrComponent(ConstrComponent c) {
-        curCC.addElement(c);
+        curCC.add(c);
         // Update the new component's bbox
         c.updateBoundingBox();
         repaint();
@@ -784,7 +706,7 @@ class DrawPanel extends Panel {
     public void removeConstrComponent(ConstrComponent c) {
 
         if (curCC.contains(c)) {
-            curCC.removeElement(c);
+            curCC.remove(c);
             c.setBorderConstraints(desiredWidth, desiredHeight);
             // Also notify all of c's constraints and interested components about
             // its removal
@@ -795,13 +717,12 @@ class DrawPanel extends Panel {
 
     // Helper function to display app info
     public void displayAppInfo() {
-        int a, nCC = 0;
         System.out.println(curCC.size() + " ConstrComponent objects:");
-        for (a = 0; a < curCC.size(); a++)
-            System.out.println((ConstrComponent) curCC.elementAt(a));
+        for (int a = 0; a < curCC.size(); a++)
+            System.out.println(curCC.get(a));
         System.out.println(curConstr.size() + " Constraint objects:");
-        for (a = 0; a < curConstr.size(); a++)
-            System.out.println((Constraint) curConstr.elementAt(a));
+        for (int a = 0; a < curConstr.size(); a++)
+            System.out.println(curConstr.get(a));
 
         System.out.println("Solver info:");
         System.out.println(solver);
@@ -812,12 +733,12 @@ class DrawPanel extends Panel {
     // For now, just display full version of all selected SP's
     public void displayFullInfo() {
         int a;
-        Vector v = getAllSelectedSelPoints();
+        List<SelPoint> v = getAllSelectedSelPoints();
         SelPoint sp;
 
         System.out.println("Full info on all selected SelPoints:");
         for (a = 0; a < v.size(); a++) {
-            sp = (SelPoint) v.elementAt(a);
+            sp = v.get(a);
             System.out.println(sp.fullInfo());
         }
     }
@@ -825,32 +746,18 @@ class DrawPanel extends Panel {
     // Remove everything from the panel (all groups, constraints, etc)
     @Override
     public void removeAll() {
-        System.out.println("DP.remAll invoked");
-        int a;
-        Constraint constr;
-        ConstrComponent c;
-
         // Remove all constraints
-        /*
-         * System.out.println("Constraints being removed:"); System.out.println(curConstr);
-         */
         // Remove all CC's
-        for (a = 0; a < curCC.size(); a++) {
-            c = (ConstrComponent) curCC.elementAt(a);
+        for (ConstrComponent cc : curCC) {
             // Notify associated constraint objs and CC's that it is going away
             // MORE WORK HERE
         }
-        curCC.removeAllElements();
+        curCC.clear();
 
-        for (a = 0; a < curConstr.size(); a++) {
-            constr = (Constraint) curConstr.elementAt(a);
+        for (Constraint constr : curConstr) {
             constr.removeConstraints();
         }
-        curConstr.removeAllElements();
-
-        // Force GC to clean up
-        System.gc();
-        System.runFinalization();
+        curConstr.clear();
 
         // Redraw display
         repaint();
@@ -858,12 +765,13 @@ class DrawPanel extends Panel {
 
     // Delete the selected CC(s) and constraint objs
     public void deleteCC() {
-        Vector selCC, selConstr, iCon, keepCC;
+        List<ConstrComponent> selCC;
+        List<Constraint> selConstr;
+        List<ConstrComponent> keepCC;
         ConstrComponent c, iC;
         Constraint constr, aConstr;
         int a, b, d, j;
-        SelPoint sp, repsp;
-        Vector v;
+        SelPoint repsp;
 
         // Build a list of all components that are selected
         selCC = getAllSelectedCC();
@@ -874,29 +782,28 @@ class DrawPanel extends Panel {
 
         // For each selected CC, remove it.
         for (a = 0; a < selCC.size(); a++) {
-            c = (ConstrComponent) selCC.elementAt(a);
+            c = selCC.get(a);
 
             // First, notify each constraint that cares about the component that the
             // CC is going away.
-            v = c.getInterestedConstr();
+            List<Constraint> v = c.getInterestedConstr();
             /*
              * System.out.println("For CC " + c + ", interested Constrs: " + v);
              */
             for (b = 0; b < v.size(); b++) {
-                constr = (Constraint) v.elementAt(b);
+                constr = v.get(b);
                 constr.notifyCCRemoval(c);
                 // If the constraint can be discarded, do so now.
                 if (constr.canDiscard()) {
                     constr.cleanUp();
-                    curConstr.removeElement(constr);
+                    curConstr.remove(constr);
                     c.removeInterestedConstr(constr);
                 }
             }
 
             // See if each SelPoint of the component can be discarded
             // MORE WORK HERE
-            for (b = 0; b < c.selPoints.size(); b++) {
-                sp = (SelPoint) c.selPoints.elementAt(b);
+            for (SelPoint sp : c.selPoints) {
                 // Each SP loses interest in CC about to go away
                 sp.removeInterestedCC(c);
 
@@ -908,22 +815,18 @@ class DrawPanel extends Panel {
                      */
                     v = sp.getInterestedConstr();
                     for (d = 0; d < v.size(); d++) {
-                        constr = (Constraint) v.elementAt(d);
+                        constr = v.get(d);
                         /*
                          * System.out.println("Removing " + constr);
                          */
                         constr.cleanUp();
-                        curConstr.removeElement(constr);
+                        curConstr.remove(constr);
                     }
                     sp.cleanUp();
-                } else {
-                    /*
-                     * System.out.println("DP.delCC: Can't discard SP " + sp.fullInfo());
-                     */
                 }
             }
 
-            curCC.removeElement(c);
+            curCC.remove(c);
             c.cleanUp();
         }
 
@@ -935,16 +838,16 @@ class DrawPanel extends Panel {
 
         // For each selected constraint, remove it.
         for (a = 0; a < selConstr.size(); a++) {
-            constr = (Constraint) selConstr.elementAt(a);
+            constr = selConstr.get(a);
 
             // If the constraint that is being deleted is a colocation
             // constraint, clone the point so that every interested CC gets its own
             // copy.
             if (constr instanceof ColocationConstraint) {
-                v = constr.ccList;
-                sp = (SelPoint) constr.selPointList.elementAt(0);
+                List<ConstrComponent> v = constr.ccList;
+                SelPoint sp = constr.selPointList.get(0);
                 for (b = 1; b < v.size(); b++) {
-                    c = (ConstrComponent) v.elementAt(b);
+                    c = v.get(b);
                     repsp = sp.clone();
                     /*
                      * // Each replacement SP should not be interested in the constraint // that is going away...
@@ -958,59 +861,52 @@ class DrawPanel extends Panel {
                      * System.out.println("DP.delCC: repsp " + repsp + " interCC = " + repsp.interCC);
                      */
 
-                    // Get all constraint objs. interested in point
-                    iCon = repsp.getInterestedConstr();
-                    keepCC = new Vector(4);
-                    /*
-                     * System.out.println("DP.delCC: iCon = " + iCon);
-                     */
-                    // Build list of CC's that repsp should keep interest in
-                    for (d = 0; d < iCon.size(); d++) {
-                        aConstr = (Constraint) iCon.elementAt(d);
-                        for (j = 0; j < aConstr.ccList.size(); j++) {
-                            iC = (ConstrComponent) aConstr.ccList.elementAt(j);
-                            if (!keepCC.contains(iC))
-                                keepCC.addElement(iC);
+                    {
+                        // Get all constraint objs. interested in point
+                        List<Constraint> iCon = repsp.getInterestedConstr();
+                        keepCC = new ArrayList<ConstrComponent>(4);
+                        // Build list of CC's that repsp should keep interest in
+                        for (d = 0; d < iCon.size(); d++) {
+                            aConstr = iCon.get(d);
+                            for (j = 0; j < aConstr.ccList.size(); j++) {
+                                iC = aConstr.ccList.get(j);
+                                if (!keepCC.contains(iC))
+                                    keepCC.add(iC);
+                            }
                         }
                     }
-                    /*
-                     * System.out.println("DP.delCC: keepCC = " + keepCC);
-                     */
-                    // For each CC that the to-be-deleted constraint was interested in,
-                    // remove repsp's interest unless it's in the keepCC list.
-                    iCon = repsp.getInterestedCC();
-                    for (d = 0; d < iCon.size(); d++) {
-                        iC = (ConstrComponent) iCon.elementAt(d);
-                        if (!keepCC.contains(iC)) {
-                            /*
-                             * System.out.println("DP.delCC: Removing repsp interest in " + iC);
-                             */
-                            repsp.removeInterestedCC(iC);
-
-                        } else {
-                            System.out.println("DP.delCC: Keeping repsp interest in " + iC);
-
+                    {
+                        // For each CC that the to-be-deleted constraint was interested in,
+                        // remove repsp's interest unless it's in the keepCC list.
+                        List<ConstrComponent> iCon = repsp.getInterestedCC();
+                        for (d = 0; d < iCon.size(); d++) {
+                            iC = iCon.get(d);
+                            if (!keepCC.contains(iC)) {
+                                repsp.removeInterestedCC(iC);
+                            }
                         }
                     }
                     c.replaceSelPoint(sp, repsp);
                 }
             }
             // Remove this constraint from every SP interested in it
-            v = constr.selPointList;
-            for (b = 0; b < v.size(); b++) {
-                sp = (SelPoint) v.elementAt(b);
+
+            for (SelPoint sp : constr.selPointList) {
                 sp.removeInterestedConstr(constr);
             }
-            constr.selPointList.removeAllElements();
-            v = constr.ccList;
-            for (b = 0; b < v.size(); b++) {
-                c = (ConstrComponent) v.elementAt(b);
-                c.removeInterestedConstr(constr);
+            constr.selPointList.clear();
+
+            {
+                List<ConstrComponent> v = constr.ccList;
+                for (b = 0; b < v.size(); b++) {
+                    c = v.get(b);
+                    c.removeInterestedConstr(constr);
+                }
+                constr.ccList.clear();
             }
-            constr.ccList.removeAllElements();
             if (constr.canDiscard()) {
                 constr.cleanUp();
-                curConstr.removeElement(constr);
+                curConstr.remove(constr);
             } else {
                 System.out.println("DP.delCC: Trying to delete constr " + constr + " but canDiscard() = false!");
             }
@@ -1029,12 +925,12 @@ class DrawPanel extends Panel {
         Constraint constr;
 
         for (a = 0; a < curCC.size(); a++) {
-            c = (ConstrComponent) curCC.elementAt(a);
+            c = curCC.get(a);
             c.unselect();
         }
 
         for (a = 0; a < curConstr.size(); a++) {
-            constr = (Constraint) curConstr.elementAt(a);
+            constr = curConstr.get(a);
             constr.unselect();
         }
     }
@@ -1050,12 +946,12 @@ class DrawPanel extends Panel {
         boolean isShiftDown = e.isShiftDown() || pickingTargetCC;
 
         for (a = 0; a < curCC.size(); a++) {
-            c = (ConstrComponent) curCC.elementAt(a);
+            c = curCC.get(a);
             c.highlight(p, isShiftDown);
         }
 
         for (a = 0; a < curConstr.size(); a++) {
-            constr = (Constraint) curConstr.elementAt(a);
+            constr = curConstr.get(a);
             constr.highlight(p, isShiftDown);
         }
 
@@ -1069,7 +965,7 @@ class DrawPanel extends Panel {
         ConstrComponent c;
 
         for (a = 0; a < curCC.size(); a++) {
-            c = (ConstrComponent) curCC.elementAt(a);
+            c = curCC.get(a);
             c.moveBy(mouseDelta, editConstantList);
         }
     }
@@ -1080,7 +976,7 @@ class DrawPanel extends Panel {
         ConstrComponent c;
 
         for (a = 0; a < curCC.size(); a++) {
-            c = (ConstrComponent) curCC.elementAt(a);
+            c = curCC.get(a);
             c.updateEditConstants();
         }
     }
@@ -1091,7 +987,7 @@ class DrawPanel extends Panel {
         ConstrComponent c;
 
         for (a = 0; a < curCC.size(); a++) {
-            c = (ConstrComponent) curCC.elementAt(a);
+            c = curCC.get(a);
             c.removeEditConstraints();
         }
     }
@@ -1102,7 +998,7 @@ class DrawPanel extends Panel {
         ConstrComponent c;
 
         for (a = 0; a < curCC.size(); a++) {
-            c = (ConstrComponent) curCC.elementAt(a);
+            c = curCC.get(a);
             c.select(p, performMultipleSelect);
         }
     }
@@ -1112,19 +1008,19 @@ class DrawPanel extends Panel {
         ConstrComponent c;
 
         for (a = 0; a < curCC.size(); a++) {
-            c = (ConstrComponent) curCC.elementAt(a);
+            c = curCC.get(a);
             c.select(b, performMultipleSelect);
         }
     }
 
     // Get a vector of all SP's of any CC at given point p. Modifies
     // retv vector in place.
-    public void getSelPointsAt(Point p, Vector retv) {
+    public void getSelPointsAt(Point p, List<SelPoint> retv) {
         int a;
         ConstrComponent c;
 
         for (a = 0; a < curCC.size(); a++) {
-            c = (ConstrComponent) curCC.elementAt(a);
+            c = curCC.get(a);
             c.getSelPointsAt(p, retv);
         }
     }
@@ -1135,21 +1031,18 @@ class DrawPanel extends Panel {
         ConstrComponent c;
 
         for (a = 0; a < curCC.size(); a++) {
-            c = (ConstrComponent) curCC.elementAt(a);
+            c = curCC.get(a);
             c.highlight(selectionBox);
         }
     }
 
     // Get vector of CC's whose bounding box encloses the given point.
-    public Vector getCCAtPoint(Point p) {
-        Vector retv = new Vector(4);
-        int a;
-        ConstrComponent c;
+    public List<ConstrComponent> getCCAtPoint(Point p) {
+        List<ConstrComponent> retv = new ArrayList<ConstrComponent>(4);
 
-        for (a = 0; a < curCC.size(); a++) {
-            c = (ConstrComponent) curCC.elementAt(a);
+        for (ConstrComponent c : curCC) {
             if (c.bbox.contains(p))
-                retv.addElement(c);
+                retv.add(c);
         }
 
         return retv;
@@ -1157,20 +1050,17 @@ class DrawPanel extends Panel {
 
     // Get vector of Constraint objs whose bounding box encloses the given pt.
     // Requires the shift key be held down while clicking.
-    public Vector getConstrAtPoint(Point p, boolean isShiftDown) {
-        Vector retv = new Vector(4);
-        int a;
-        Constraint c;
+    public List<Constraint> getConstrAtPoint(Point p, boolean isShiftDown) {
+        List<Constraint> retv = new ArrayList<Constraint>(4);
 
         if (!isShiftDown) {
             // Can't select a constraint obj w/out shift key
             return retv;
         }
 
-        for (a = 0; a < curConstr.size(); a++) {
-            c = (Constraint) curConstr.elementAt(a);
+        for (Constraint c : curConstr) {
             if (c.bbox.contains(p))
-                retv.addElement(c);
+                retv.add(c);
         }
 
         return retv;
@@ -1178,22 +1068,17 @@ class DrawPanel extends Panel {
 
     // Select any CC's. Notify CC of a selection at point p.
     // Return vector of selected component(s).
-    public Vector selectCC(Point p, boolean performMultipleSelect) {
-        int a;
-        ConstrComponent c;
+    public List<ConstrComponent> selectCC(Point p, boolean performMultipleSelect) {
 
-        Vector v;
-
-        v = getCCAtPoint(p);
+        List<ConstrComponent> v = getCCAtPoint(p);
 
         // If no multiple selection is being performed, just pick first one
         if (performMultipleSelect) {
-            c = (ConstrComponent) v.elementAt(0);
+            ConstrComponent c = v.get(0);
             if (c != null)
                 c.setisSelected(true);
         } else {
-            for (a = 0; a < v.size(); a++) {
-                c = (ConstrComponent) v.elementAt(a);
+            for (ConstrComponent c : v) {
                 c.setisSelected(true);
             }
         }
@@ -1203,14 +1088,8 @@ class DrawPanel extends Panel {
 
     public void mousePressed(MouseEvent e) {
         SelPoint sp;
-        int a, b;
+        int a;
         ConstrComponent c;
-        Constraint constr;
-        Vector v;
-
-        /*
-         * System.out.println("DP.mousePressed invoked, mouse at (" + e.getX() + ", " + e.getY() + ")");
-         */
 
         // Store mouse position, in case it's the start of a drag
         mouseStart(e.getPoint());
@@ -1221,35 +1100,34 @@ class DrawPanel extends Panel {
             startPlacingComponentEndSP(c);
             return;
         }
+        {
+            List<ConstrComponent> v = getCCAtPoint(e.getPoint());
 
-        v = getCCAtPoint(e.getPoint());
-
-        // If we need to pick a target CC for a relative-position constraint,
-        // check for target CC
-        if (pickingTargetCC) {
-            if (v.size() < 1) {
-                /*
-                 * System.out.println("No target selected");
-                 */
-                stopPickingTargetCC();
+            // If we need to pick a target CC for a relative-position constraint,
+            // check for target CC
+            if (pickingTargetCC) {
+                if (v.size() < 1) {
+                    /*
+                     * System.out.println("No target selected");
+                     */
+                    stopPickingTargetCC();
+                    return;
+                }
+                c = v.get(0);
+                establishRelationalConstr(c);
                 return;
             }
-            c = (ConstrComponent) v.elementAt(0);
-            establishRelationalConstr(c);
-            return;
         }
 
         // See if we're over a selectable thing
-        Vector SPatPoint = new Vector(4);
-        getSelPointsAt(e.getPoint(), SPatPoint);
-        /*
-         * System.out.println("SPatPoint = " + SPatPoint);
-         */
-        if (SPatPoint.size() < 1)
+        List<SelPoint> selPointAtPoint = new ArrayList<SelPoint>(4);
+        getSelPointsAt(e.getPoint(), selPointAtPoint);
+
+        if (selPointAtPoint.size() < 1)
             sp = null;
         else {
-            sp = (SelPoint) SPatPoint.elementAt(spVectorOffset % (SPatPoint.size()));
-            spVectorOffset++;
+            sp = selPointAtPoint.get(spListOffset % (selPointAtPoint.size()));
+            spListOffset++;
         }
 
         // Did we hit anything?
@@ -1265,10 +1143,8 @@ class DrawPanel extends Panel {
 
                 // For each CC interested in SP, make sure it can change its
                 // whole CC selection flag
-                v = sp.getInterestedCC();
-                for (a = 0; a < v.size(); a++) {
-                    c = (ConstrComponent) v.elementAt(a);
-                    c.updateIsSelected();
+                for (ConstrComponent cc : sp.getInterestedCC()) {
+                    cc.updateIsSelected();
                 }
             } else {
                 // Hitting a selected point does not change the selection list.
@@ -1279,18 +1155,14 @@ class DrawPanel extends Panel {
         } else {
             // See if any constraint objs. should be selected
             // This entails clicking in their bounding box.
-            v = getConstrAtPoint(e.getPoint(), e.isShiftDown());
-            /*
-             * System.out.println("DP.mousePressed: Constr at pt = " + v);
-             */
-            if (v.size() > 0) {
+            List<Constraint> cl = getConstrAtPoint(e.getPoint(), e.isShiftDown());
+            if (cl.size() > 0) {
                 if (e.isControlDown()) {
-                    constr = (Constraint) v.elementAt(0);
+                    Constraint constr = cl.get(0);
                     constr.setisSelected(true);
                 } else {
                     unselectAll();
-                    for (a = 0; a < v.size(); a++) {
-                        constr = (Constraint) v.elementAt(a);
+                    for (Constraint constr : cl) {
                         constr.setisSelected(true);
                     }
                 }
@@ -1298,7 +1170,7 @@ class DrawPanel extends Panel {
                 // See if any CC's should be selected
                 // This entails having clicked in their bounding boxes *and*
                 // having the shift key held down.
-                v = getCCAtPoint(e.getPoint());
+                List<ConstrComponent> v = getCCAtPoint(e.getPoint());
                 if ((v.size() == 0) || !e.isShiftDown()) {
                     // Hitting nothing results in setting the start of a rubber-band sel.
                     // box drag. Also may need to clear all currently selected points.
@@ -1316,12 +1188,12 @@ class DrawPanel extends Panel {
                 } else {
                     // There are CC's in v enclosing the given point, so select them
                     if (e.isControlDown()) {
-                        c = (ConstrComponent) v.elementAt(0);
+                        c = v.get(0);
                         c.setisSelected(true);
                     } else {
                         unselectAll();
                         for (a = 0; a < v.size(); a++) {
-                            c = (ConstrComponent) v.elementAt(a);
+                            c = v.get(a);
                             c.setisSelected(true);
                         }
                     }
@@ -1337,31 +1209,20 @@ class DrawPanel extends Panel {
     // that match (x, y) coords with any selected points (which implies
     // they were snapped-to during a drag)
     public void mouseReleased(MouseEvent e) {
-        /*
-         * System.out.println("DP.mouseReleased invoked, mouse at (" + e.getX() + ", " + e.getY() + ")");
-         */
-
-        int a, b, d;
-
         firstDrag = true;
-        ConstrComponent c;
 
         removeAllEditConstraints();
 
         // Build a list of CC's that may have been affected by any dragged
         // points (IE selected points)
-        Vector allSelSP = getAllSelectedSelPoints();
-        Vector movedCC, spCC;
-        SelPoint sp, stSP;
+        List<SelPoint> allSelSP = getAllSelectedSelPoints();
 
-        movedCC = new Vector(4);
-        for (a = 0; a < allSelSP.size(); a++) {
-            sp = (SelPoint) allSelSP.elementAt(a);
-            spCC = sp.getInterestedCC();
-            for (b = 0; b < spCC.size(); b++) {
-                c = (ConstrComponent) spCC.elementAt(b);
+        List<ConstrComponent> movedCC = new ArrayList<ConstrComponent>(4);
+        for (int a = 0; a < allSelSP.size(); a++) {
+            SelPoint sp = allSelSP.get(a);
+            for (ConstrComponent c : sp.getInterestedCC()) {
                 if (!movedCC.contains(c))
-                    movedCC.addElement(c);
+                    movedCC.add(c);
             }
         }
 
@@ -1370,63 +1231,45 @@ class DrawPanel extends Panel {
             drawingSelectionBox = false;
         } else {
             // For every SP, get all other points stacked at that location.
-            Vector v, allSP, stackedSP;
-            ConstrComponent cc;
-
-            allSP = new Vector(20);
-            for (a = 0; a < curCC.size(); a++) {
-                cc = (ConstrComponent) curCC.elementAt(a);
-                for (b = 0; b < cc.selPoints.size(); b++) {
-                    if (!allSP.contains(cc.selPoints.elementAt(b)))
-                        allSP.addElement(cc.selPoints.elementAt(b));
+            List<SelPoint> allSP = new ArrayList<SelPoint>(20);
+            for (ConstrComponent cc : curCC) {
+                for (int b = 0; b < cc.selPoints.size(); b++) {
+                    if (!allSP.contains(cc.selPoints.get(b)))
+                        allSP.add(cc.selPoints.get(b));
                 }
             }
-
+            List<SelPoint> stackedSP;
             while (allSP.size() > 0) {
-                /*
-                 * System.out.println("allSP = " + allSP);
-                 */
-                sp = (SelPoint) allSP.elementAt(0);
-                v = new Vector(4);
+                SelPoint sp = allSP.get(0);
+                List<SelPoint> v = new ArrayList<SelPoint>(4);
                 getSelPointsAt(new Point(sp.x, sp.y), v);
-                stackedSP = new Vector(4);
-                for (b = 0; b < v.size(); b++) {
-                    // To be merged, the point must exactly share x, y coords with
-                    // SelPoint sp
-                    stSP = (SelPoint) v.elementAt(b);
+                stackedSP = new ArrayList<SelPoint>(4);
+
+                // To be merged, the point must exactly share x, y coords with SelPoint sp
+                for (SelPoint stSP : v) {
                     if ((stSP.x == sp.x) && (stSP.y == sp.y)) {
                         if (!stackedSP.contains(stSP))
-                            stackedSP.addElement(stSP);
+                            stackedSP.add(stSP);
                     }
                 }
                 // Are any SP's in the stack interested in any live CC's?
                 boolean stackHasActiveSP = false;
-                for (b = 0; b < stackedSP.size(); b++) {
-                    sp = (SelPoint) stackedSP.elementAt(b);
-                    spCC = sp.getInterestedCC();
-                    for (d = 0; d < spCC.size(); d++) {
-                        cc = (ConstrComponent) spCC.elementAt(d);
+                for (int b = 0; b < stackedSP.size(); b++) {
+                    sp = stackedSP.get(b);
+                    for (ConstrComponent cc : sp.getInterestedCC()) {
                         if (movedCC.contains(cc))
                             stackHasActiveSP = true;
                     }
                 }
                 if (stackedSP.size() > 1) {
                     if (stackHasActiveSP) {
-                        /*
-                         * System.out.println("Active stack: " + stackedSP);
-                         */
                         establishColocationConstraint(stackedSP);
-
-                    } else {
-                        /*
-                         * System.out.println("Inactive stack (" + sp + "): " + stackedSP);
-                         */
                     }
-                    for (b = 0; b < stackedSP.size(); b++)
-                        if (allSP.contains(stackedSP.elementAt(b)))
-                            allSP.removeElement(stackedSP.elementAt(b));
+                    for (int b = 0; b < stackedSP.size(); b++)
+                        if (allSP.contains(stackedSP.get(b)))
+                            allSP.remove(stackedSP.get(b));
                 } else {
-                    allSP.removeElement(sp);
+                    allSP.remove(sp);
                 }
             }
         }
@@ -1436,9 +1279,7 @@ class DrawPanel extends Panel {
 
     // Invoked when mouse is dragged
     public void mouseDragged(MouseEvent e) {
-        int a, b, minx, miny, maxx, maxy, ex, ey;
-        ConstrComponent c;
-        Vector v, allSelSP;
+        int a, minx, miny, maxx, maxy, ex, ey;
 
         // If we're drawing a selection box, update box corners, highlight
         // contents, and trigger repaint
@@ -1481,25 +1322,22 @@ class DrawPanel extends Panel {
             return;
         }
 
-        // See if there are any SelPoints under the cursor, and snap to them
-        // if so.
-        v = new Vector(4);
-        getSelPointsAt(new Point(ex, ey), v);
-        SelPoint sp = null;
-        SelPoint tSP;
-        for (a = 0; a < v.size(); a++) {
-            if (isValidSnapToTarget((SelPoint) v.elementAt(a))) {
-                sp = (SelPoint) v.elementAt(a);
-
-                break;
+        {
+            // See if there are any SelPoints under the cursor, and snap to them
+            // if so.
+            List<SelPoint> v = new ArrayList<SelPoint>(4);
+            getSelPointsAt(new Point(ex, ey), v);
+            SelPoint sp = null;
+            for (a = 0; a < v.size(); a++) {
+                if (isValidSnapToTarget(v.get(a))) {
+                    sp = v.get(a);
+                    break;
+                }
             }
-        }
-        if (sp != null) {
-            /*
-             * System.out.println("DP.mouseDelta: At (" + ex + ", " + ey + "), Snapping to (" + sp.x + ", " + sp.y + ")");
-             */
-            ex = sp.x;
-            ey = sp.y;
+            if (sp != null) {
+                ex = sp.x;
+                ey = sp.y;
+            }
         }
 
         mouseDelta.x = ex - mouseStart.x;
@@ -1513,9 +1351,7 @@ class DrawPanel extends Panel {
             firstDrag = false;
             numEC = 0;
 
-            v = getAllSelectedSelPoints();
-            for (a = 0; a < v.size(); a++) {
-                sp = (SelPoint) v.elementAt(a);
+            for (SelPoint sp : getAllSelectedSelPoints()) {
                 sp.setEditConstraints();
                 numEC += 2;
             }
@@ -1552,29 +1388,21 @@ class DrawPanel extends Panel {
     // target during a drag. It must not be selected, and must not belong
     // to the same CC as any point being dragged (IE selected).
     public boolean isValidSnapToTarget(SelPoint sp) {
-        SelPoint tSP;
-        Vector v, activeCC, allSelSP;
-        int a, b;
-        ConstrComponent cc;
-
         if (sp.getSelected())
             return false;
 
-        allSelSP = getAllSelectedSelPoints();
-        activeCC = new Vector(4);
-        for (a = 0; a < allSelSP.size(); a++) {
-            tSP = (SelPoint) allSelSP.elementAt(a);
-            v = tSP.getInterestedCC();
-            for (b = 0; b < v.size(); b++) {
-                cc = (ConstrComponent) v.elementAt(b);
+        List<SelPoint> allSelSP = getAllSelectedSelPoints();
+        List<ConstrComponent> activeCC = new ArrayList<ConstrComponent>(4);
+        for (SelPoint tSP : allSelSP) {
+            List<ConstrComponent> v = tSP.getInterestedCC();
+            for (ConstrComponent cc : v) {
                 if (!activeCC.contains(cc))
-                    activeCC.addElement(cc);
+                    activeCC.add(cc);
             }
         }
 
         // For each active CC, if sp is contained by it, don't do it.
-        for (a = 0; a < activeCC.size(); a++) {
-            cc = (ConstrComponent) activeCC.elementAt(a);
+        for (ConstrComponent cc : activeCC) {
             if (cc.selPoints.contains(sp))
                 return false;
         }
@@ -1588,10 +1416,10 @@ class DrawPanel extends Panel {
         int ex, ey;
 
         // Snap starting point to coincide with any SP under cursor
-        Vector v = new Vector(4);
+        List<SelPoint> v = new ArrayList<SelPoint>(4);
         getSelPointsAt(e.getPoint(), v);
         if (v.size() > 0) {
-            SelPoint sp = (SelPoint) v.elementAt(0);
+            SelPoint sp = v.get(0);
             ex = sp.x;
             ey = sp.y;
         } else {
@@ -1630,15 +1458,9 @@ class DrawPanel extends Panel {
     // Ensure that constraints are satisfied. Do this by creating some dummy
     // edit constraints and invoke resolve.
     public void resatisfyConstraints() {
-        Vector v;
-        int a;
-        SelPoint sp;
-
         numEC = 0;
 
-        v = getAllSelectedSelPoints();
-        for (a = 0; a < v.size(); a++) {
-            sp = (SelPoint) v.elementAt(a);
+        for (SelPoint sp : getAllSelectedSelPoints()) {
             sp.setEditConstraints();
             numEC += 2;
         }

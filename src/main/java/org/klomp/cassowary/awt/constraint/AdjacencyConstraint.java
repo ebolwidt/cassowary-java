@@ -26,7 +26,7 @@ import org.klomp.cassowary.clconstraint.ClLinearInequality;
 
 public abstract class AdjacencyConstraint extends Constraint {
 
-    // Vector of ClLinearInequality constraints upon the target's SelPoints
+    // List of ClLinearInequality constraints upon the target's SelPoints
     protected List<ClLinearInequality> relConstrs;
 
     public AdjacencyConstraint(ClSimplexSolver solver, ConstrComponent srcCC, ConstrComponent targetCC) {
@@ -35,15 +35,12 @@ public abstract class AdjacencyConstraint extends Constraint {
         addCC(srcCC);
         addCC(targetCC);
 
-        int a;
-        SelPoint sp;
-
         // The constraint also needs to be interested in every SelPoint of the
         // target, in case one changes. It does *not* need to be explicitly
         // concerned about those in the src, as any changes to them will alter
         // its bounding box.
-        for (a = 0; a < targetCC.selPoints.size(); a++) {
-            sp = (SelPoint) targetCC.selPoints.elementAt(a);
+        for (int a = 0; a < targetCC.selPoints.size(); a++) {
+            SelPoint sp = targetCC.selPoints.get(a);
             addSelPoint(sp);
             sp.addInterestedConstr(this);
         }
@@ -80,15 +77,13 @@ public abstract class AdjacencyConstraint extends Constraint {
     // establish new one on the new SP.
     @Override
     public void replaceSelPoint(SelPoint oldsp, SelPoint newsp) {
-        ConstrComponent srcCC, targetCC;
 
         if (ccList.size() != 2) {
             System.out.println("AdjConstr.repSP: Ill-formed AdjacencyConstraint!");
             return;
-        } else {
-            srcCC = (ConstrComponent) ccList.elementAt(0);
-            targetCC = (ConstrComponent) ccList.elementAt(1);
         }
+        ConstrComponent srcCC = ccList.get(0);
+        ConstrComponent targetCC = ccList.get(1);
 
         if (srcCC.selPoints.contains(oldsp)) {
             // Doesn't matter...updating the bounding box of the src CC affects
@@ -137,7 +132,7 @@ public abstract class AdjacencyConstraint extends Constraint {
          * System.out.println("AdjConstr.notifyCCRem: Removing " + c + " from " + ccList);
          */
         if (ccList.contains(c))
-            ccList.removeElement(c);
+            ccList.remove(c);
     }
 
     @Override
@@ -149,8 +144,8 @@ public abstract class AdjacencyConstraint extends Constraint {
             System.out.println("AdjConstr.draw: " + ccList.size() + " CC's, not required 2!");
             return;
         }
-        srcCC = (ConstrComponent) ccList.elementAt(0);
-        targetCC = (ConstrComponent) ccList.elementAt(1);
+        srcCC = ccList.get(0);
+        targetCC = ccList.get(1);
 
         srcx = srcCC.bbox.x + srcCC.bbox.width / 2;
         targx = targetCC.bbox.x + targetCC.bbox.width / 2;

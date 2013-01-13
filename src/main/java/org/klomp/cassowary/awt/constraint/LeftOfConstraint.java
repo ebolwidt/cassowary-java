@@ -28,14 +28,13 @@ public class LeftOfConstraint extends AdjacencyConstraint {
     // every SelPoint in the target to be left of the leftmost SP in the src.
     @Override
     public void addConstraints() {
-        ConstrComponent srcCC, targetCC;
 
         if (ccList.size() != 2) {
             System.out.println("LeftOfConstr.addConstr: " + ccList.size() + " CC's, not required 2!");
             return;
         }
-        srcCC = (ConstrComponent) ccList.elementAt(0);
-        targetCC = (ConstrComponent) ccList.elementAt(1);
+        ConstrComponent srcCC = ccList.get(0);
+        ConstrComponent targetCC = ccList.get(1);
 
         int size = targetCC.selPoints.size();
         if (relConstrs.size() != size) {
@@ -47,7 +46,7 @@ public class LeftOfConstraint extends AdjacencyConstraint {
                 relConstrs.add(null);
             }
             for (int a = 0; a < targetCC.selPoints.size(); a++) {
-                SelPoint sp = (SelPoint) targetCC.selPoints.elementAt(a);
+                SelPoint sp = targetCC.selPoints.get(a);
                 try {
                     ClLinearInequality cli = new ClLinearInequality(sp.X(), CL.LEQ, srcCC.leftSP.X());
                     relConstrs.set(a, cli);
@@ -83,8 +82,8 @@ public class LeftOfConstraint extends AdjacencyConstraint {
             sb.append(" ILL-FORMED CONSTRAINT WITH " + ccList.size());
             sb.append(" INSTEAD OF 2 CC's");
         } else {
-            srcCC = (ConstrComponent) ccList.elementAt(0);
-            targetCC = (ConstrComponent) ccList.elementAt(1);
+            srcCC = ccList.get(0);
+            targetCC = ccList.get(1);
             sb.append("srcCC = " + srcCC);
             sb.append(", targetCC = " + targetCC);
         }

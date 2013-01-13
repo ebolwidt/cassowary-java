@@ -43,10 +43,10 @@ public class RectangleCC extends ConstrComponent {
         c = Color.black;
 
         // Add endpoints and midpoint to selectable point vector
-        selPoints.addElement(c1);
-        selPoints.addElement(c2);
-        selPoints.addElement(c3);
-        selPoints.addElement(c4);
+        selPoints.add(c1);
+        selPoints.add(c2);
+        selPoints.add(c3);
+        selPoints.add(c4);
 
         // Set owner of corners to this CC
         c1.setOwner(this);
@@ -142,38 +142,22 @@ public class RectangleCC extends ConstrComponent {
     // replaced with newsp.
     @Override
     protected void notifySelPointReplacement(int idx, SelPoint newsp) {
-        SelPoint sp = (SelPoint) selPoints.elementAt(idx);
-
-        /*
-         * System.out.println("Rectangle: Replacing idx " + idx + " with " + newsp);
-         */
+        SelPoint sp = selPoints.get(idx);
 
         if (c1 == sp) {
             c1 = newsp;
-            /*
-             * System.out.println("Rectangle: c1 replaced");
-             */
         }
 
         if (c2 == sp) {
             c2 = newsp;
-            /*
-             * System.out.println("Rectangle: c2 replaced");
-             */
         }
 
         if (c3 == sp) {
             c3 = newsp;
-            /*
-             * System.out.println("Rectangle: c3 replaced");
-             */
         }
 
         if (c4 == sp) {
             c4 = newsp;
-            /*
-             * System.out.println("Rectangle: c4 replaced");
-             */
         }
 
         // Need to update constraints at this point
@@ -184,18 +168,7 @@ public class RectangleCC extends ConstrComponent {
     // Clean-up function
     @Override
     public void cleanUp() {
-        /*
-         * System.out.println("RectangleCC.cleanUp invoked on " + this);
-         */
         removeCornerConstraints();
-    }
-
-    @Override
-    public void finalize() {
-        /*
-         * System.out.println("RectangleCC.finalize invoked on " + this);
-         */
-        cleanUp();
     }
 
     // Return a string version of the component

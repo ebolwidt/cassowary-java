@@ -13,7 +13,8 @@ package org.klomp.cassowary.awt.constraint;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.klomp.cassowary.CDA_G;
 import org.klomp.cassowary.CLInternalError;
@@ -27,9 +28,10 @@ import org.klomp.cassowary.clconstraint.ClLinearEquation;
 
 public class AlignmentConstraint extends Constraint {
 
-    // Vector of ClLinearEquation constraints upon the appropriate edge of
-    // the CC's
-    protected Vector relConstrs;
+    /**
+     * ClLinearEquation constraints upon the appropriate edge of the CC's
+     */
+    protected List<ClLinearEquation> relConstrs;
 
     // What type of alignment is it? (IE which side of bbox)
     public static final int TOP_ALIGN = 0;
@@ -42,14 +44,11 @@ public class AlignmentConstraint extends Constraint {
     // The SelPoint to align with
     protected SelPoint targetSP;
 
-    public AlignmentConstraint(ClSimplexSolver solver, Vector ccVector, int alignment) {
+    public AlignmentConstraint(ClSimplexSolver solver, List<ConstrComponent> ccs, int alignment) {
 
         super(solver);
 
-        int a;
-        ConstrComponent cc;
-        for (a = 0; a < ccVector.size(); a++) {
-            cc = (ConstrComponent) ccVector.elementAt(a);
+        for (ConstrComponent cc : ccs) {
             addCC(cc);
             cc.addInterestedConstr(this);
         }
@@ -58,24 +57,19 @@ public class AlignmentConstraint extends Constraint {
 
         /*
          * // The constraint also needs to be interested in every SelPoint of the // target, in case one changes. It does *not*
-         * need to be explicitly // concerned about those in the src, as any changes to them will alter // its bounding box. for (
-         * a = 0; a < targetCC.selPoints.size(); a++ ) { sp = (SelPoint) targetCC.selPoints.elementAt(a); addSelPoint(sp);
-         * sp.addInterestedConstr(this); } srcCC.addInterestedConstr(this); targetCC.addInterestedConstr(this);
+         * need to be explicitly // concerned about those in the src, as any changes to them will alter // its bounding box.
          */
 
         targetSP = null;
-        relConstrs = new Vector(1);
+        relConstrs = new ArrayList<ClLinearEquation>(1);
         addConstraints();
     }
 
     // Remove constraints from solver.
     @Override
     public void removeConstraints() {
-        int a;
-        ClLinearEquation cle;
-
-        for (a = 0; a < relConstrs.size(); a++) {
-            cle = (ClLinearEquation) relConstrs.elementAt(a);
+        for (int a = 0; a < relConstrs.size(); a++) {
+            ClLinearEquation cle = relConstrs.get(a);
             try {
                 if (cle != null)
                     solver.removeConstraint(cle);
@@ -86,7 +80,7 @@ public class AlignmentConstraint extends Constraint {
             }
         }
 
-        relConstrs.removeAllElements();
+        relConstrs.clear();
 
         targetSP = null;
     }
@@ -104,13 +98,13 @@ public class AlignmentConstraint extends Constraint {
          * ConstrComponent srcCC, targetCC; ClLinearEquation cle; int oldIdx;
          * 
          * if ( ccList.size() != 2 ) { System.out.println("AlignConstr.repSP: Ill-formed AlignConstraint!"); return; } else {
-         * srcCC = (ConstrComponent) ccList.elementAt(0); targetCC = (ConstrComponent) ccList.elementAt(1); }
+         * srcCC = (ConstrComponent) ccList.get(0); targetCC = (ConstrComponent) ccList.get(1); }
          * 
          * if ( srcCC.selPoints.contains(oldsp) ) { // Doesn't matter...updating the bounding box of the src CC affects // the
          * change. return; }
          * 
          * if ( targetCC.selPoints.contains(oldsp) ) { // Remove constraint on that SP oldIdx = targetCC.selPoints.indexOf(oldsp);
-         * cle = (ClLinearEquation) relConstrs.elementAt(oldIdx); try { if ( cle != null ) solver.removeConstraint(cle); } catch
+         * cle = (ClLinearEquation) relConstrs.get(oldIdx); try { if ( cle != null ) solver.removeConstraint(cle); } catch
          * (ExCLInternalError e) { System.out.println("AlignConstr.repSP: ExCLInternalError " + "removing #" + oldIdx + " = " +
          * cle); } catch (ExCLConstraintNotFound e) { System.out.println("AlignConstr.repSP: ExCLConstraintNotFound " +
          * "removing #" + oldIdx + " = " + cle); }
@@ -149,7 +143,7 @@ public class AlignmentConstraint extends Constraint {
     @Override
     public void notifyCCRemoval(ConstrComponent c) {
         if (ccList.contains(c))
-            ccList.removeElement(c);
+            ccList.remove(c);
 
         if (c.selPoints.contains(targetSP)) {
             removeConstraints();
@@ -170,7 +164,7 @@ public class AlignmentConstraint extends Constraint {
         highy = -5000;
 
         for (a = 0; a < ccList.size(); a++) {
-            cc = (ConstrComponent) ccList.elementAt(a);
+            cc = ccList.get(a);
             bb = cc.bbox;
             // Expand the bbox of the constraint based on appropriate 2 corners
             // of a CC's bbox
@@ -282,22 +276,25 @@ public class AlignmentConstraint extends Constraint {
 
         ConstrComponent cc;
 
-        int minx, miny, maxx, maxy, a;
+        int minx, miny, maxx, maxy;
         minx = 5000;
         miny = 5000;
         maxx = -5000;
         maxy = -5000;
 
-        if (relConstrs.size() != ccList.size()) {
+        int size = ccList.size();
+        if (relConstrs.size() != size) {
             // Need to create new constraints
             if (relConstrs.size() != 0) {
                 System.out.println("AlignConstr.addConstr: relConstrs = " + relConstrs + ", should be empty!");
-                relConstrs.removeAllElements();
+                relConstrs.clear();
             }
 
-            relConstrs.setSize(ccList.size());
-            for (a = 0; a < ccList.size(); a++) {
-                cc = (ConstrComponent) ccList.elementAt(a);
+            for (int i = 0; i < size; i++) {
+                relConstrs.add(null);
+            }
+            for (int a = 0; a < size; a++) {
+                cc = ccList.get(a);
 
                 // Get the target SP to align with
                 switch (align) {
@@ -337,8 +334,8 @@ public class AlignmentConstraint extends Constraint {
 
             // Establish a constraint between the outlying pt of each CC and the
             // appropriate coord of the target SP
-            for (a = 0; a < ccList.size(); a++) {
-                cc = (ConstrComponent) ccList.elementAt(a);
+            for (int a = 0; a < size; a++) {
+                cc = ccList.get(a);
 
                 switch (align) {
                 case LEFT_ALIGN:
@@ -346,7 +343,7 @@ public class AlignmentConstraint extends Constraint {
                     try {
                         cle = new ClLinearExpression(sp.X());
                         cleq = new ClLinearEquation(targetSP.X(), cle);
-                        relConstrs.setElementAt(cleq, a);
+                        relConstrs.set(a, cleq);
                         solver.addConstraint(cleq);
                     } catch (RequiredConstraintFailureException e) {
                         System.out.println("AlignConstr.addCon: ExCLRequiredFailure!");
@@ -359,7 +356,7 @@ public class AlignmentConstraint extends Constraint {
                     try {
                         cle = new ClLinearExpression(sp.X());
                         cleq = new ClLinearEquation(targetSP.X(), cle);
-                        relConstrs.setElementAt(cleq, a);
+                        relConstrs.set(a, cleq);
                         solver.addConstraint(cleq);
                     } catch (RequiredConstraintFailureException e) {
                         System.out.println("AlignConstr.addCon: ExCLRequiredFailure!");
@@ -372,7 +369,7 @@ public class AlignmentConstraint extends Constraint {
                     try {
                         cle = new ClLinearExpression(sp.Y());
                         cleq = new ClLinearEquation(targetSP.Y(), cle);
-                        relConstrs.setElementAt(cleq, a);
+                        relConstrs.set(a, cleq);
                         solver.addConstraint(cleq);
                     } catch (RequiredConstraintFailureException e) {
                         System.out.println("AlignConstr.addCon: ExCLRequiredFailure!");
@@ -385,7 +382,7 @@ public class AlignmentConstraint extends Constraint {
                     try {
                         cle = new ClLinearExpression(sp.Y());
                         cleq = new ClLinearEquation(targetSP.Y(), cle);
-                        relConstrs.setElementAt(cleq, a);
+                        relConstrs.set(a, cleq);
                         solver.addConstraint(cleq);
                     } catch (RequiredConstraintFailureException e) {
                         System.out.println("AlignConstr.addCon: ExCLRequiredFailure!");
@@ -404,7 +401,7 @@ public class AlignmentConstraint extends Constraint {
         StringBuffer sb = new StringBuffer("AlignConstr: targetSP = " + targetSP);
         sb.append("\nccList = ");
         for (int a = 0; a < ccList.size(); a++) {
-            sb.append(ccList.elementAt(a) + "\n");
+            sb.append(ccList.get(a) + "\n");
         }
 
         return sb.toString();

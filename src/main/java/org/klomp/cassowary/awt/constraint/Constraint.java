@@ -20,7 +20,8 @@ package org.klomp.cassowary.awt.constraint;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.klomp.cassowary.ClSimplexSolver;
 import org.klomp.cassowary.awt.component.ConstrComponent;
@@ -33,10 +34,10 @@ public abstract class Constraint {
     ClSimplexSolver solver;
 
     // List of SelPoints being constrained
-    public Vector selPointList;
+    public List<SelPoint> selPointList;
 
     // List of CC's being constrained
-    public Vector ccList;
+    public List<ConstrComponent> ccList;
 
     // Bounding box of the CC
     public Rectangle bbox;
@@ -47,8 +48,8 @@ public abstract class Constraint {
     // Create a new, empty constraint
     public Constraint(ClSimplexSolver solver) {
         this.solver = solver;
-        selPointList = new Vector(10);
-        ccList = new Vector(10);
+        selPointList = new ArrayList<SelPoint>(10);
+        ccList = new ArrayList<ConstrComponent>(10);
 
         isSelected = false;
         isHighlighted = false;
@@ -59,26 +60,18 @@ public abstract class Constraint {
     public void addSelPoint(SelPoint sp) {
         // Make sure a given SelPoint can only appear once
         if (!selPointList.contains(sp))
-            selPointList.addElement(sp);
+            selPointList.add(sp);
     }
 
     // Add a CC to the list of CC's being constrained
     public void addCC(ConstrComponent c) {
         if (!ccList.contains(c))
-            ccList.addElement(c);
+            ccList.add(c);
     }
 
     // Add a vector of SelPoints to list
-    public void addSelPoint(Vector v) {
-        SelPoint sp;
-        int a;
-
-        for (a = 0; a < v.size(); a++) {
-            sp = (SelPoint) v.elementAt(a);
-            if (!(sp instanceof SelPoint)) {
-                System.out.println("C.addSP: Element " + a + " not a SelPoint!");
-                return;
-            }
+    public void addSelPoint(List<SelPoint> v) {
+        for (SelPoint sp : v) {
             addSelPoint(sp);
         }
     }
@@ -125,23 +118,17 @@ public abstract class Constraint {
     // Clean up function. By default, removes all constraints and clears out
     // the list of interested CC's and SP's.
     public void cleanUp() {
-        int a;
-        ConstrComponent cc;
-        SelPoint sp;
-
         removeConstraints();
 
-        for (a = 0; a < selPointList.size(); a++) {
-            sp = (SelPoint) selPointList.elementAt(a);
+        for (SelPoint sp : selPointList) {
             sp.removeInterestedConstr(this);
         }
-        selPointList.removeAllElements();
+        selPointList.clear();
 
-        for (a = 0; a < ccList.size(); a++) {
-            cc = (ConstrComponent) ccList.elementAt(a);
+        for (ConstrComponent cc : ccList) {
             cc.removeInterestedConstr(this);
         }
-        ccList.removeAllElements();
+        ccList.clear();
     }
 
     // Method for highlighting as the mouse moves
