@@ -49,8 +49,8 @@ public class DraggableBox {
 
     // Helper function to convert center to screen coords
     void cvt() {
-        sx = (int) center.X().value();
-        sy = (int) center.Y().value();
+        sx = (int) center.getX().getValue();
+        sy = (int) center.getY().getValue();
     }
 
     // Draw the box
@@ -60,7 +60,7 @@ public class DraggableBox {
     }
 
     public void SetCenter(double x, double y) {
-        center.SetXY(x, y);
+        center.setXY(x, y);
         cvt();
     }
 
@@ -70,19 +70,19 @@ public class DraggableBox {
     }
 
     public double CenterX() {
-        return center.Xvalue();
+        return center.getXValue();
     }
 
     public double CenterY() {
-        return center.Yvalue();
+        return center.getYValue();
     }
 
     public ClVariable X() {
-        return center.X();
+        return center.getX();
     }
 
     public ClVariable Y() {
-        return center.Y();
+        return center.getY();
     }
 
     public ClPoint CenterPt() {

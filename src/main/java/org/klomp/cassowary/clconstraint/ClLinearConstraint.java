@@ -16,6 +16,7 @@ import org.klomp.cassowary.ClLinearExpression;
 import org.klomp.cassowary.ClStrength;
 
 class ClLinearConstraint extends ClConstraint {
+    protected ClLinearExpression _expression;
 
     public ClLinearConstraint(ClLinearExpression cle, ClStrength strength, double weight) {
         super(strength, weight);
@@ -41,5 +42,4 @@ class ClLinearConstraint extends ClConstraint {
         _expression = expr;
     }
 
-    protected ClLinearExpression _expression;
 }

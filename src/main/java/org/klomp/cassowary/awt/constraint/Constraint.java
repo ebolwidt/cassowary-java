@@ -31,7 +31,7 @@ public abstract class Constraint {
     public int x, y;
 
     // Reference to the solver
-    ClSimplexSolver solver;
+    protected ClSimplexSolver solver;
 
     // List of SelPoints being constrained
     public List<SelPoint> selPointList;

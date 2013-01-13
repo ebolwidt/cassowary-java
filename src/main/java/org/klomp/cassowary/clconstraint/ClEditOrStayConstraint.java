@@ -25,7 +25,7 @@ abstract class ClEditOrStayConstraint extends ClConstraint {
     public ClEditOrStayConstraint(ClVariable var, ClStrength strength, double weight) {
         super(strength, weight);
         _variable = var;
-        _expression = new ClLinearExpression(_variable, -1.0, _variable.value());
+        _expression = new ClLinearExpression(_variable, -1.0, _variable.getValue());
     }
 
     public ClEditOrStayConstraint(ClVariable var, ClStrength strength) {

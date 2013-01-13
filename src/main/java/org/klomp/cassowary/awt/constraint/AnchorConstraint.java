@@ -20,12 +20,12 @@ import org.klomp.cassowary.awt.component.SelPoint;
 import org.klomp.cassowary.clconstraint.ClStayConstraint;
 
 public class AnchorConstraint extends Constraint {
-    ClStayConstraint stayConstrX, stayConstrY;
+    private ClStayConstraint stayConstrX, stayConstrY;
 
     public AnchorConstraint(ClSimplexSolver solver, SelPoint sp) {
         super(solver);
-        x = (int) sp.X().value();
-        y = (int) sp.Y().value();
+        x = (int) sp.X().getValue();
+        y = (int) sp.Y().getValue();
 
         bbox.x = x - 4;
         bbox.y = y - 4;
@@ -38,8 +38,8 @@ public class AnchorConstraint extends Constraint {
 
     @Override
     public void draw(Graphics g) {
-        x = (int) selPointList.get(0).X().value();
-        y = (int) selPointList.get(0).Y().value();
+        x = (int) selPointList.get(0).X().getValue();
+        y = (int) selPointList.get(0).Y().getValue();
         // g.setColor(Color.green);
         g.setColor(Color.red.darker());
         // g.drawLine(x - 5, y - 5, x + 5, y + 5);

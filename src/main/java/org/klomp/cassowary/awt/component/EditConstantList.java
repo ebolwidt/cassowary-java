@@ -72,9 +72,9 @@ public class EditConstantList {
 
         ClDouble d;
         d = ec.get(2 * spIdx);
-        d.setValue(sp.clX.value() + delta.x);
+        d.setValue(sp.clX.getValue() + delta.x);
         d = ec.get(2 * spIdx + 1);
-        d.setValue(sp.clY.value() + delta.y);
+        d.setValue(sp.clY.getValue() + delta.y);
 
     }
 

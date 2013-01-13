@@ -257,8 +257,8 @@ public class SelPoint implements Cloneable {
     // Helper function that retrieves the updated value from the constraint
     // variables and sets the location
     public void updateValue() {
-        x = (int) clX.value();
-        y = (int) clY.value();
+        x = (int) clX.getValue();
+        y = (int) clY.getValue();
     }
 
     // Remove all constraints associated with the point that it manages itself

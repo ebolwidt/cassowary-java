@@ -122,10 +122,10 @@ public class CL {
     }
 
     public static boolean approx(ClVariable clv, double b) {
-        return approx(clv.value(), b);
+        return approx(clv.getValue(), b);
     }
 
     static boolean approx(double a, ClVariable clv) {
-        return approx(a, clv.value());
+        return approx(a, clv.getValue());
     }
 }

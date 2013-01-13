@@ -17,7 +17,7 @@ import org.klomp.cassowary.awt.component.SelPoint;
 
 public class ColocationConstraint extends Constraint {
 
-    int ox, oy;
+    private int ox, oy;
 
     public ColocationConstraint(ClSimplexSolver solver, SelPoint sharedSP) {
         super(solver);
@@ -33,8 +33,8 @@ public class ColocationConstraint extends Constraint {
 
     @Override
     public void draw(Graphics g) {
-        x = (int) selPointList.get(0).X().value();
-        y = (int) selPointList.get(0).Y().value();
+        x = (int) selPointList.get(0).X().getValue();
+        y = (int) selPointList.get(0).Y().getValue();
         g.setColor(CDA_G.DARK_RED);
         g.drawOval(x - 5, y - 5, 10, 10);
         // Draw inward-pointing arrows

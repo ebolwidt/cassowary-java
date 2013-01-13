@@ -31,30 +31,30 @@ class ClTestColumns extends CL {
         solver.addConstraint(c10).addConstraint(c20);
 
         fOkResult = fOkResult && CL.approx(x, 10.0);
-        System.out.println("x == " + x.value());
+        System.out.println("x == " + x.getValue());
 
         solver.removeConstraint(c10);
         fOkResult = fOkResult && CL.approx(x, 20.0);
-        System.out.println("x == " + x.value());
+        System.out.println("x == " + x.getValue());
 
         solver.removeConstraint(c20);
         fOkResult = fOkResult && CL.approx(x, 100.0);
-        System.out.println("x == " + x.value());
+        System.out.println("x == " + x.getValue());
 
         ClLinearInequality c10again = new ClLinearInequality(x, CL.LEQ, 10.0);
 
         solver.addConstraint(c10).addConstraint(c10again);
 
         fOkResult = fOkResult && CL.approx(x, 10.0);
-        System.out.println("x == " + x.value());
+        System.out.println("x == " + x.getValue());
 
         solver.removeConstraint(c10);
         fOkResult = fOkResult && CL.approx(x, 10.0);
-        System.out.println("x == " + x.value());
+        System.out.println("x == " + x.getValue());
 
         solver.removeConstraint(c10again);
         fOkResult = fOkResult && CL.approx(x, 100.0);
-        System.out.println("x == " + x.value());
+        System.out.println("x == " + x.getValue());
 
         System.err.println("Solver == " + solver);
 
@@ -75,7 +75,7 @@ class ClTestColumns extends CL {
             }
         }
 
-        System.out.println("x == " + x.value());
+        System.out.println("x == " + x.getValue());
 
         System.err.println("Solver == " + solver);
 

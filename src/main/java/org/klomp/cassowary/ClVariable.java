@@ -70,13 +70,13 @@ public class ClVariable extends ClAbstractVariable {
         return "[" + name() + ":" + _value + "]";
     }
 
-    // change the value held -- should *not* use this if the variable is
-    // in a solver -- instead use addEditVar() and suggestValue() interface
-    public final double value() {
+    public final double getValue() {
         return _value;
     }
 
-    public final void set_value(double value) {
+    // change the value held -- should *not* use this if the variable is
+    // in a solver -- instead use addEditVar() and suggestValue() interface
+    public final void setValue(double value) {
         _value = value;
     }
 

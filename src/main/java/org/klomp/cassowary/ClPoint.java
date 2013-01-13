@@ -33,31 +33,31 @@ public class ClPoint {
         this.y = clv_y;
     }
 
-    public ClVariable X() {
+    public ClVariable getX() {
         return x;
     }
 
-    public ClVariable Y() {
+    public ClVariable getY() {
         return y;
     }
 
     // use only before adding into the solver
-    public void SetXY(double x, double y) {
-        this.x.set_value(x);
-        this.y.set_value(y);
+    public void setXY(double x, double y) {
+        this.x.setValue(x);
+        this.y.setValue(y);
     }
 
-    public void SetXY(ClVariable clv_x, ClVariable clv_y) {
+    public void setXY(ClVariable clv_x, ClVariable clv_y) {
         this.x = clv_x;
         this.y = clv_y;
     }
 
-    public double Xvalue() {
-        return X().value();
+    public double getXValue() {
+        return getX().getValue();
     }
 
-    public double Yvalue() {
-        return Y().value();
+    public double getYValue() {
+        return getY().getValue();
     }
 
     @Override

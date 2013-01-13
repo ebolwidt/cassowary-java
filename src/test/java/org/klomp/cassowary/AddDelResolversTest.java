@@ -12,13 +12,13 @@ public class AddDelResolversTest {
 
     static private Random RND = new Random();
 
-    @Test
     public void testAddDelete() throws Exception {
         int testNum = 1, cns = 900, resolves = 400, solvers = 15;
         addDelSolvers(cns, resolves, solvers, testNum);
 
     }
 
+    @Test
     public void testAddDeleteMany() throws Exception {
         System.out.println("type something");
         System.in.read();
@@ -196,7 +196,7 @@ public class AddDelResolversTest {
             ClSimplexSolver solver = rgsolvers[is];
 
             for (int m = 0; m < nResolves; m++) {
-                solver.resolve(rgpclv[e1Index].value() * 1.001, rgpclv[e2Index].value() * 1.001);
+                solver.resolve(rgpclv[e1Index].getValue() * 1.001, rgpclv[e2Index].getValue() * 1.001);
             }
         }
         timer.Stop();

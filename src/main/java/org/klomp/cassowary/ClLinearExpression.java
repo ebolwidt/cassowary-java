@@ -46,11 +46,6 @@ public class ClLinearExpression extends CL {
         this(clv, 1, 0);
     }
 
-    // // for use by the clone method
-    // protected ClLinearExpression(ClDouble constant, Map<ClAbstractVariable, ClDouble> terms) {
-    //
-    // }
-
     protected ClLinearExpression(double constant, Map<ClAbstractVariable, ClDouble> terms) {
         if (CL.fGC)
             System.err.println("clone ClLinearExpression");
@@ -159,7 +154,7 @@ public class ClLinearExpression extends CL {
     // Add a term c*v to this expression. If the expression already
     // contains a term involving v, add c to the existing coefficient.
     // If the new coefficient is approximately 0, delete v.
-    public final ClLinearExpression addVariable(ClAbstractVariable v, double c) { // body largely duplicated below
+    public final ClLinearExpression addVariable(ClAbstractVariable v, double c) {
         if (fTraceOn)
             fnenterprint("addVariable:" + v + ", " + c);
 

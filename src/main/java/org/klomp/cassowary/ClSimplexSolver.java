@@ -192,6 +192,11 @@ public class ClSimplexSolver extends ClTableau {
         return addEditVar(v, ClStrength.strong);
     }
 
+    public void removeEditVar(ClVariable v) {
+        ClEditInfo cei = _editVarMap.get(v);
+        removeEditVar(v, cei);
+    }
+
     // Remove the edit constraint previously added for variable v
     private void removeEditVar(ClVariable v, ClEditInfo cei) {
         ClConstraint cn = cei.Constraint();
@@ -283,8 +288,8 @@ public class ClSimplexSolver extends ClTableau {
 
     public final ClSimplexSolver addPointStay(ClPoint clp, double weight) throws RequiredConstraintFailureException,
             CLInternalError {
-        addStay(clp.X(), ClStrength.weak, weight);
-        addStay(clp.Y(), ClStrength.weak, weight);
+        addStay(clp.getX(), ClStrength.weak, weight);
+        addStay(clp.getY(), ClStrength.weak, weight);
         return this;
     }
 
@@ -567,12 +572,12 @@ public class ClSimplexSolver extends ClTableau {
     }
 
     public ClSimplexSolver setEditedValue(ClVariable v, double n) throws CLInternalError {
-        if (!FContainsVariable(v)) {
+        if (!containsVariable(v)) {
             v.change_value(n);
             return this;
         }
 
-        if (!CL.approx(n, v.value())) {
+        if (!CL.approx(n, v.getValue())) {
             addEditVar(v);
             beginEdit();
             try {
@@ -586,12 +591,12 @@ public class ClSimplexSolver extends ClTableau {
         return this;
     }
 
-    public final boolean FContainsVariable(ClVariable v) throws CLInternalError {
+    public final boolean containsVariable(ClVariable v) throws CLInternalError {
         return columnsHasKey(v) || (rowExpression(v) != null);
     }
 
     public ClSimplexSolver addVar(ClVariable v) throws CLInternalError {
-        if (!FContainsVariable(v)) {
+        if (!containsVariable(v)) {
             try {
                 addStay(v);
             } catch (RequiredConstraintFailureException e) {
