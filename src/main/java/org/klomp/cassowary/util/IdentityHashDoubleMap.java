@@ -82,8 +82,8 @@ public class IdentityHashDoubleMap<K> implements Map<K, Double>, java.io.Seriali
      * Constructs a new, empty identity hash map with a default expected maximum size (21).
      */
     public IdentityHashDoubleMap(Class<K> keyType) {
-        init(DEFAULT_CAPACITY);
         this.keyType = keyType;
+        init(DEFAULT_CAPACITY);
     }
 
     /**
@@ -95,11 +95,11 @@ public class IdentityHashDoubleMap<K> implements Map<K, Double>, java.io.Seriali
      * @throws IllegalArgumentException
      *             if <tt>expectedMaxSize</tt> is negative
      */
-    public IdentityHashDoubleMap(int expectedMaxSize, Class<K> keyType) {
+    public IdentityHashDoubleMap(Class<K> keyType, int expectedMaxSize) {
         if (expectedMaxSize < 0)
             throw new IllegalArgumentException("expectedMaxSize is negative: " + expectedMaxSize);
-        init(capacity(expectedMaxSize));
         this.keyType = keyType;
+        init(capacity(expectedMaxSize));
     }
 
     /**
@@ -137,6 +137,7 @@ public class IdentityHashDoubleMap<K> implements Map<K, Double>, java.io.Seriali
         threshold = (initCapacity * 2) / 3;
 
         table = (K[]) Array.newInstance(keyType, initCapacity);
+        rawValues = new double[initCapacity];
     }
 
     /**
@@ -149,7 +150,7 @@ public class IdentityHashDoubleMap<K> implements Map<K, Double>, java.io.Seriali
      */
     public IdentityHashDoubleMap(Class<K> keyType, Map<? extends K, ? extends Double> m) {
         // Allow for a bit of growth
-        this((int) ((1 + m.size()) * 1.1), keyType);
+        this(keyType, (int) ((1 + m.size()) * 1.1));
         putAll(m);
     }
 
