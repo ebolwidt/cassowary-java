@@ -16,11 +16,22 @@ public class AddDelResolversTest {
     public void testAddDelete() throws Exception {
         int testNum = 1, cns = 900, resolves = 400, solvers = 15;
         addDelSolvers(cns, resolves, solvers, testNum);
+
     }
 
     public void testAddDeleteMany() throws Exception {
-        int testNum = 40, cns = 1100, resolves = 3000, solvers = 20;
+        System.out.println("type something");
+        System.in.read();
+        System.out.println("starting");
+
+        int testNum = 40, cns = 1100, resolves = 10000, solvers = 20;
         addDelSolvers(cns, resolves, solvers, testNum);
+
+        System.out.println("CAV.numCreated: " + ClAbstractVariable.numCreated());
+
+        // System.out.println("type something");
+        // System.in.read();
+        // System.out.println("ended");
 
         // int testNum = 40, cns = 1100, resolves = 3000, solvers = 20;
         // Elapsed time for add: 4.35 seconds

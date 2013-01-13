@@ -17,7 +17,8 @@ import org.klomp.cassowary.clconstraint.ClLinearEquation;
 import org.klomp.cassowary.clconstraint.ClLinearInequality;
 
 class ClTestColumns extends CL {
-    public final static boolean addDelete1() throws CLInternalError, RequiredConstraintFailureException, ConstraintNotFoundException {
+    public final static boolean addDelete1() throws CLInternalError, RequiredConstraintFailureException,
+            ConstraintNotFoundException {
         boolean fOkResult = true;
         ClVariable x = new ClVariable("x");
         ClSimplexSolver solver = new ClSimplexSolver();
@@ -60,7 +61,8 @@ class ClTestColumns extends CL {
         return (fOkResult);
     }
 
-    public final static boolean reqFail1() throws CLInternalError, RequiredConstraintFailureException, ConstraintNotFoundException {
+    public final static boolean reqFail1() throws CLInternalError, RequiredConstraintFailureException,
+            ConstraintNotFoundException {
         boolean fOkResult = true;
         ClVariable x = new ClVariable("x");
         ClSimplexSolver solver = new ClSimplexSolver();
@@ -80,8 +82,8 @@ class ClTestColumns extends CL {
         return (fOkResult);
     }
 
-    public final static void main(String[] args) throws CLInternalError, NonlinearExpressionException, RequiredConstraintFailureException,
-            ConstraintNotFoundException {
+    public final static void main(String[] args) throws CLInternalError, NonlinearExpressionException,
+            RequiredConstraintFailureException, ConstraintNotFoundException {
         // try
         {
             boolean fAllOkResult = true;

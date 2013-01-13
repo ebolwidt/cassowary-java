@@ -65,7 +65,8 @@ public class CassowaryTest {
     }
 
     @Test
-    public void addDelete2() throws CLInternalError, RequiredConstraintFailureException, ConstraintNotFoundException, NonlinearExpressionException {
+    public void addDelete2() throws CLInternalError, RequiredConstraintFailureException, ConstraintNotFoundException,
+            NonlinearExpressionException {
         ClVariable x = new ClVariable("x");
         ClVariable y = new ClVariable("y");
         ClSimplexSolver solver = new ClSimplexSolver();

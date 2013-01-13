@@ -10,10 +10,10 @@ package org.klomp.cassowary;
 import java.io.StringReader;
 import java.util.Hashtable;
 
+import java_cup.runtime.Symbol;
+
 import org.klomp.cassowary.parser.Yylex;
 import org.klomp.cassowary.parser.parser;
-
-import java_cup.runtime.Symbol;
 
 public class ClParseTest {
     public final static void main(String[] args) {
