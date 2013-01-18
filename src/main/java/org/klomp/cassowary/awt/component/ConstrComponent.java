@@ -27,8 +27,8 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.klomp.cassowary.CDA_G;
 import org.klomp.cassowary.ClSimplexSolver;
+import org.klomp.cassowary.awt.CDA_G;
 import org.klomp.cassowary.awt.constraint.Constraint;
 
 public abstract class ConstrComponent {

@@ -1,13 +1,16 @@
-// $Id: ClSymbolicWeight.java,v 1.11 1999/04/20 00:26:41 gjb Exp $
-//
-// Cassowary Incremental Constraint Solver
-// Original Smalltalk Implementation by Alan Borning
-// This Java Implementation by Greg J. Badros, <gjb@cs.washington.edu>
-// http://www.cs.washington.edu/homes/gjb
-// (C) 1998, 1999 Greg J. Badros and Alan Borning
-// See ../LICENSE for legal details regarding this software
-//
-// ClSymbolicWeight
+/*
+ * Cassowary Incremental Constraint Solver
+ * Original Smalltalk Implementation by Alan Borning
+ * 
+ * Java Implementation by:
+ * Greg J. Badros
+ * Erwin Bolwidt
+ * 
+ * (C) 1998, 1999 Greg J. Badros and Alan Borning
+ * (C) Copyright 2012 Erwin Bolwidt
+ * 
+ * See the file LICENSE for legal details regarding this software
+ */
 
 package org.klomp.cassowary;
 

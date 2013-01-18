@@ -23,7 +23,6 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.klomp.cassowary.CDA_G;
 import org.klomp.cassowary.CL;
 import org.klomp.cassowary.CLInternalError;
 import org.klomp.cassowary.ClSimplexSolver;
@@ -31,6 +30,7 @@ import org.klomp.cassowary.ClStrength;
 import org.klomp.cassowary.ClVariable;
 import org.klomp.cassowary.ConstraintNotFoundException;
 import org.klomp.cassowary.RequiredConstraintFailureException;
+import org.klomp.cassowary.awt.CDA_G;
 import org.klomp.cassowary.awt.constraint.Constraint;
 import org.klomp.cassowary.clconstraint.ClEditConstraint;
 import org.klomp.cassowary.clconstraint.ClLinearInequality;

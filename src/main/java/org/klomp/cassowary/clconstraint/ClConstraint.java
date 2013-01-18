@@ -1,14 +1,16 @@
-// $Id: ClConstraint.java,v 1.14 2000/04/10 15:55:06 gjb Exp $
-//
-// Cassowary Incremental Constraint Solver
-// Original Smalltalk Implementation by Alan Borning
-// This Java Implementation by Greg J. Badros, <gjb@cs.washington.edu>
-// http://www.cs.washington.edu/homes/gjb
-// (C) 1998, 1999 Greg J. Badros and Alan Borning
-// See ../LICENSE for legal details regarding this software
-//
-// ClConstraint
-//
+/*
+ * Cassowary Incremental Constraint Solver
+ * Original Smalltalk Implementation by Alan Borning
+ * 
+ * Java Implementation by:
+ * Greg J. Badros
+ * Erwin Bolwidt
+ * 
+ * (C) 1998, 1999 Greg J. Badros and Alan Borning
+ * (C) Copyright 2012 Erwin Bolwidt
+ * 
+ * See the file LICENSE for legal details regarding this software
+ */
 
 package org.klomp.cassowary.clconstraint;
 

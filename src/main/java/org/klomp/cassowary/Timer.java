@@ -1,16 +1,22 @@
-// $Id: Timer.java,v 1.7 1999/11/13 19:44:12 gjb Exp $
-//
-// Cassowary Incremental Constraint Solver
-// Original Smalltalk Implementation by Alan Borning
-// This Java Implementation by Greg J. Badros, <gjb@cs.washington.edu>
-// http://www.cs.washington.edu/homes/gjb
-// (C) 1998, 1999 Greg J. Badros and Alan Borning
-// See ../LICENSE for legal details regarding this software
-//
-// Timer, adapted from John P. Russo's C++ Timer class
+/*
+ * Cassowary Incremental Constraint Solver
+ * Original Smalltalk Implementation by Alan Borning
+ * 
+ * Java Implementation by:
+ * Greg J. Badros
+ * Erwin Bolwidt
+ * 
+ * (C) 1998, 1999 Greg J. Badros and Alan Borning
+ * (C) Copyright 2012 Erwin Bolwidt
+ * 
+ * See the file LICENSE for legal details regarding this software
+ */
 
 package org.klomp.cassowary;
 
+/**
+ * Timer, adapted from John P. Russo's C++ Timer class.
+ */
 public class Timer {
     public Timer() {
         timerIsRunning = false; // Start not yet called.

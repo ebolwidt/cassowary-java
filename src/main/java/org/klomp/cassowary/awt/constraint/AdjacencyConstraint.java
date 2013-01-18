@@ -16,10 +16,10 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.klomp.cassowary.CDA_G;
 import org.klomp.cassowary.CLInternalError;
 import org.klomp.cassowary.ClSimplexSolver;
 import org.klomp.cassowary.ConstraintNotFoundException;
+import org.klomp.cassowary.awt.CDA_G;
 import org.klomp.cassowary.awt.component.ConstrComponent;
 import org.klomp.cassowary.awt.component.SelPoint;
 import org.klomp.cassowary.clconstraint.ClLinearInequality;

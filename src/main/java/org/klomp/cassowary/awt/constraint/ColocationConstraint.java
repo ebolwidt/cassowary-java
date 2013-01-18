@@ -10,8 +10,8 @@ package org.klomp.cassowary.awt.constraint;
 
 import java.awt.Graphics;
 
-import org.klomp.cassowary.CDA_G;
 import org.klomp.cassowary.ClSimplexSolver;
+import org.klomp.cassowary.awt.CDA_G;
 import org.klomp.cassowary.awt.component.ConstrComponent;
 import org.klomp.cassowary.awt.component.SelPoint;
 

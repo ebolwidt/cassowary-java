@@ -25,7 +25,7 @@ public class testClLinearExpression {
         System.out.println(cle.toString());
         cle.changeSubject(a, b);
         System.out.println(cle.toString());
-        ClLinearExpression cle2 = (ClLinearExpression) cle.clone();
+        ClLinearExpression cle2 = cle.clone();
         cle.addExpression(cle2, -1);
         System.out.println(cle.toString());
         System.out.println(b.toString());

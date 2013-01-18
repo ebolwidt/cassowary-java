@@ -10,12 +10,12 @@ package org.klomp.cassowary.awt.constraint;
 import java.awt.Color;
 import java.awt.Graphics;
 
-import org.klomp.cassowary.CDA_G;
 import org.klomp.cassowary.CLInternalError;
 import org.klomp.cassowary.ClSimplexSolver;
 import org.klomp.cassowary.ClStrength;
 import org.klomp.cassowary.ConstraintNotFoundException;
 import org.klomp.cassowary.RequiredConstraintFailureException;
+import org.klomp.cassowary.awt.CDA_G;
 import org.klomp.cassowary.awt.component.SelPoint;
 import org.klomp.cassowary.clconstraint.ClStayConstraint;
 

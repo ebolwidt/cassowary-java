@@ -1,20 +1,22 @@
-// $Id: ExCLError.java,v 1.6 1999/04/20 00:26:46 gjb Exp $
-//
-// Cassowary Incremental Constraint Solver
-// Original Smalltalk Implementation by Alan Borning
-// This Java Implementation by Greg J. Badros, <gjb@cs.washington.edu>
-// http://www.cs.washington.edu/homes/gjb
-// (C) 1998, 1999 Greg J. Badros and Alan Borning
-// See ../LICENSE for legal details regarding this software
-//
-// ExCLError
-//
+/*
+ * Cassowary Incremental Constraint Solver
+ * Original Smalltalk Implementation by Alan Borning
+ * 
+ * Java Implementation by:
+ * Greg J. Badros
+ * Erwin Bolwidt
+ * 
+ * (C) 1998, 1999 Greg J. Badros and Alan Borning
+ * (C) Copyright 2012 Erwin Bolwidt
+ * 
+ * See the file LICENSE for legal details regarding this software
+ */
 
 package org.klomp.cassowary;
 
 public class CLException extends RuntimeException {
     public CLException() {
-        super("(ExCLError) An error has occured in CL");
+        super("An error has occured in CL");
     }
 
     public CLException(String message) {
