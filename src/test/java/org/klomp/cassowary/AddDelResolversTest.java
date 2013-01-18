@@ -12,13 +12,14 @@ public class AddDelResolversTest {
 
     static private Random RND = new Random();
 
+    @Test
     public void testAddDelete() throws Exception {
         int testNum = 1, cns = 900, resolves = 400, solvers = 15;
         addDelSolvers(cns, resolves, solvers, testNum);
 
     }
 
-    @Test
+    // @Test
     public void testAddDeleteMany() throws Exception {
         System.out.println("type something");
         System.in.read();
