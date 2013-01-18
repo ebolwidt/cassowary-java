@@ -2,6 +2,7 @@ package org.klomp.cassowary;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.klomp.cassowary.clconstraint.ClLinearEquation;
 import org.klomp.cassowary.clconstraint.ClLinearInequality;
@@ -182,6 +183,22 @@ public class CassowaryTest {
         assertEquals(60, y.getValue(), EPSILON);
         assertEquals(30, w.getValue(), EPSILON);
         assertEquals(40, h.getValue(), EPSILON);
+    }
+
+    @Test
+    public void requiredEditVar() {
+        ClVariable x = new ClVariable("x");
+        ClVariable y = new ClVariable("y");
+        ClSimplexSolver solver = new ClSimplexSolver();
+
+        solver.addConstraint(new ClLinearInequality(x, CL.GEQ, y));
+
+        solver.beginEdit();
+        solver.setEditedValue(y, 10);
+        solver.resolve();
+        Assert.assertTrue("x.getValue() == " + x.getValue(), x.getValue() >= 10);
+        solver.endEdit();
+
     }
 
 }
