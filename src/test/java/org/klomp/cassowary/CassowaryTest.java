@@ -186,6 +186,43 @@ public class CassowaryTest {
     }
 
     @Test
+    public void multieditRequired() throws CLInternalError, RequiredConstraintFailureException, CLException {
+        ClVariable x = new ClVariable("x");
+        ClVariable y = new ClVariable("y");
+        ClVariable w = new ClVariable("w");
+        ClVariable h = new ClVariable("h");
+        ClSimplexSolver solver = new ClSimplexSolver();
+
+        solver.addStay(x).addStay(y).addStay(w).addStay(h);
+
+        solver.addEditVar(x, ClStrength.required).addEditVar(y, ClStrength.required).beginEdit();
+
+        solver.suggestValue(x, 10).suggestValue(y, 20).resolve();
+
+        assertEquals(10, x.getValue(), EPSILON);
+        assertEquals(20, y.getValue(), EPSILON);
+        assertEquals(0, w.getValue(), EPSILON);
+        assertEquals(0, h.getValue(), EPSILON);
+
+        solver.addEditVar(w).addEditVar(h).beginEdit();
+
+        solver.suggestValue(w, 30).suggestValue(h, 40).endEdit();
+
+        assertEquals(10, x.getValue(), EPSILON);
+        assertEquals(20, y.getValue(), EPSILON);
+        assertEquals(30, w.getValue(), EPSILON);
+        assertEquals(40, h.getValue(), EPSILON);
+
+        solver.suggestValue(x, 50).suggestValue(y, 60).endEdit();
+
+        assertEquals(50, x.getValue(), EPSILON);
+        assertEquals(60, y.getValue(), EPSILON);
+        assertEquals(30, w.getValue(), EPSILON);
+        assertEquals(40, h.getValue(), EPSILON);
+    }
+
+
+    @Test
     public void requiredEditVar() {
         ClVariable x = new ClVariable("x");
         ClVariable y = new ClVariable("y");

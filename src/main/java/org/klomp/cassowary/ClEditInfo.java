@@ -22,7 +22,7 @@ import org.klomp.cassowary.clconstraint.ClConstraint;
  * smalltalk version of the code.
  */
 class ClEditInfo {
-    public ClEditInfo(ClConstraint cn_, ClSlackVariable eplus_, ClSlackVariable eminus_, double prevEditConstant_, int i_) {
+    public ClEditInfo(ClConstraint cn_, ClAbstractVariable eplus_, ClAbstractVariable eminus_, double prevEditConstant_, int i_) {
         cn = cn_;
         clvEditPlus = eplus_;
         clvEditMinus = eminus_;
@@ -38,11 +38,11 @@ class ClEditInfo {
         return cn;
     }
 
-    public ClSlackVariable ClvEditPlus() {
+    public ClAbstractVariable ClvEditPlus() {
         return clvEditPlus;
     }
 
-    public ClSlackVariable ClvEditMinus() {
+    public ClAbstractVariable ClvEditMinus() {
         return clvEditMinus;
     }
 
@@ -55,8 +55,8 @@ class ClEditInfo {
     }
 
     private ClConstraint cn;
-    private ClSlackVariable clvEditPlus;
-    private ClSlackVariable clvEditMinus;
+    private ClAbstractVariable clvEditPlus;
+    private ClAbstractVariable clvEditMinus;
     private double prevEditConstant;
     private int i;
 

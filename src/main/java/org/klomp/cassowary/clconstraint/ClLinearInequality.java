@@ -35,6 +35,7 @@ public class ClLinearInequality extends ClLinearConstraint {
         super(cle);
     }
 
+
     public ClLinearInequality(ClVariable clv1, byte op_enum, ClVariable clv2, ClStrength strength, double weight)
             throws CLInternalError {
         super(new ClLinearExpression(clv2), strength, weight);
