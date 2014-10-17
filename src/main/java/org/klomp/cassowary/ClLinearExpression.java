@@ -131,7 +131,7 @@ public class ClLinearExpression extends CL {
     // Notify the solver if a variable is added or deleted from this
     // expression.
     public final ClLinearExpression addExpression(ClLinearExpression expr, double n, ClAbstractVariable subject, ClTableau solver) {
-        incrementConstant(n * expr.constant());
+        incrementConstant(n * expr.getConstant());
 
         for (Map.Entry<ClAbstractVariable, ClDouble> e : expr.terms().entrySet()) {
             addVariable(e.getKey(), e.getValue().doubleValue() * n, subject, solver);
@@ -141,7 +141,7 @@ public class ClLinearExpression extends CL {
 
     // Add n*expr to this expression from another expression expr.
     public final ClLinearExpression addExpression(ClLinearExpression expr, double n) {
-        incrementConstant(n * expr.constant());
+        incrementConstant(n * expr.getConstant());
 
         for (Map.Entry<ClAbstractVariable, ClDouble> e : expr.terms().entrySet()) {
             addVariable(e.getKey(), e.getValue().doubleValue() * n);
@@ -218,11 +218,11 @@ public class ClLinearExpression extends CL {
     }
 
     // Return a pivotable variable in this expression. (It is an error
-    // if this expression is constant -- signal ExCLInternalError in
+    // if this expression is getConstant -- signal ExCLInternalError in
     // that case). Return null if no pivotable variables
     public final ClAbstractVariable anyPivotableVariable() throws CLInternalError {
         if (isConstant()) {
-            throw new CLInternalError("anyPivotableVariable called on a constant");
+            throw new CLInternalError("anyPivotableVariable called on a getConstant");
         }
 
         for (ClAbstractVariable clv : _terms.keySet()) {
@@ -248,7 +248,7 @@ public class ClLinearExpression extends CL {
             traceprint("this = " + this);
 
         double multiplier = _terms.remove(var).doubleValue();
-        incrementConstant(multiplier * expr.constant());
+        incrementConstant(multiplier * expr.getConstant());
 
         for (Map.Entry<ClAbstractVariable, ClDouble> e : expr.terms().entrySet()) {
             ClAbstractVariable clv = e.getKey();
@@ -332,11 +332,11 @@ public class ClLinearExpression extends CL {
             return 0.0;
     }
 
-    public final double constant() {
+    public final double getConstant() {
         return _constant;
     }
 
-    public final void set_constant(double c) {
+    public final void setConstant(double c) {
         _constant = c;
     }
 

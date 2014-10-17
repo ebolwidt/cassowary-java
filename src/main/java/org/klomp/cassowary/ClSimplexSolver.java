@@ -380,7 +380,7 @@ public class ClSimplexSolver extends ClTableau {
                     if (fTraceOn)
                         traceprint("Marker " + marker + "'s coefficient in " + expr + " is " + coeff);
                     if (coeff < 0.0) {
-                        double r = -expr.constant() / coeff;
+                        double r = -expr.getConstant() / coeff;
                         // Bland's anti-cycling rule:
                         // if multiple variables are about the same,
                         // always pick the lowest via some total
@@ -399,7 +399,7 @@ public class ClSimplexSolver extends ClTableau {
                     if (v.isRestricted()) {
                         final ClLinearExpression expr = rowExpression(v);
                         double coeff = expr.coefficientFor(marker);
-                        double r = expr.constant() / coeff;
+                        double r = expr.getConstant() / coeff;
                         if (exitVar == null || r < minRatio) {
                             minRatio = r;
                             exitVar = v;
@@ -575,7 +575,7 @@ public class ClSimplexSolver extends ClTableau {
 
     public ClSimplexSolver setEditedValue(ClVariable v, double n) throws CLInternalError {
         if (!containsVariable(v)) {
-            v.change_value(n);
+            v.changeValue(n);
             return this;
         }
 
@@ -677,9 +677,9 @@ public class ClSimplexSolver extends ClTableau {
         ClLinearExpression azTableauRow = rowExpression(az);
 
         if (fTraceOn)
-            traceprint("azTableauRow.constant() == " + azTableauRow.constant());
+            traceprint("azTableauRow.getConstant() == " + azTableauRow.getConstant());
 
-        if (!CL.approx(azTableauRow.constant(), 0.0)) {
+        if (!CL.approx(azTableauRow.getConstant(), 0.0)) {
             removeRow(az);
             removeColumn(av);
             throw new RequiredConstraintFailureException();
@@ -800,7 +800,7 @@ public class ClSimplexSolver extends ClTableau {
             }
         }
 
-        if (!CL.approx(expr.constant(), 0.0)) {
+        if (!CL.approx(expr.getConstant(), 0.0)) {
             throw new RequiredConstraintFailureException();
         }
         if (coeff > 0.0) {
@@ -818,7 +818,7 @@ public class ClSimplexSolver extends ClTableau {
     // something, and we want to fix the constants in the equations
     // representing the edit constraints. If one of eplus and eminus is
     // basic, the other must occur only in the expression for that basic
-    // error variable. (They can't both be basic.) Fix the constant in
+    // error variable. (They can't both be basic.) Fix the getConstant in
     // this expression. Otherwise they are both nonbasic. Find all of
     // the expressions in which they occur, and fix the constants in
     // those. See the UIST paper for details.
@@ -832,7 +832,7 @@ public class ClSimplexSolver extends ClTableau {
         if (exprPlus != null) {
             exprPlus.incrementConstant(delta);
 
-            if (exprPlus.constant() < 0.0) {
+            if (exprPlus.getConstant() < 0.0) {
                 _infeasibleRows.add(plusErrorVar);
             }
             return;
@@ -841,7 +841,7 @@ public class ClSimplexSolver extends ClTableau {
         ClLinearExpression exprMinus = rowExpression(minusErrorVar);
         if (exprMinus != null) {
             exprMinus.incrementConstant(-delta);
-            if (exprMinus.constant() < 0.0) {
+            if (exprMinus.getConstant() < 0.0) {
                 _infeasibleRows.add(minusErrorVar);
             }
             return;
@@ -854,7 +854,7 @@ public class ClSimplexSolver extends ClTableau {
             // assert(expr != null, "expr != null" );
             final double c = expr.coefficientFor(minusErrorVar);
             expr.incrementConstant(c * delta);
-            if (basicVar.isRestricted() && expr.constant() < 0.0) {
+            if (basicVar.isRestricted() && expr.getConstant() < 0.0) {
                 _infeasibleRows.add(basicVar);
             }
         }
@@ -872,7 +872,7 @@ public class ClSimplexSolver extends ClTableau {
             ClAbstractVariable entryVar = null;
             ClLinearExpression expr = rowExpression(exitVar);
             if (expr != null) {
-                if (expr.constant() < 0.0) {
+                if (expr.getConstant() < 0.0) {
                     double ratio = Double.MAX_VALUE;
                     double r;
                     Map<ClAbstractVariable, ClDouble> terms = expr.terms();
@@ -899,7 +899,7 @@ public class ClSimplexSolver extends ClTableau {
 
     // Make a new linear expression representing the constraint cn,
     // replacing any basic variables with their defining expressions.
-    // Normalize if necessary so that the constant is non-negative. If
+    // Normalize if necessary so that the getConstant is non-negative. If
     // the constraint is non-required give its error variables an
     // appropriate weight in the objective function.
     protected final ClLinearExpression newExpression(ClConstraint cn, List<ClSlackVariable> eplus_eminus, ClDouble prevEConstant) {
@@ -911,7 +911,7 @@ public class ClSimplexSolver extends ClTableau {
             traceprint("cn.isRequired() == " + cn.isRequired());
 
         final ClLinearExpression cnExpr = cn.expression();
-        ClLinearExpression expr = new ClLinearExpression(cnExpr.constant());
+        ClLinearExpression expr = new ClLinearExpression(cnExpr.getConstant());
         ClSlackVariable slackVar = new ClSlackVariable();
         // ClDummyVariable dummyVar = new ClDummyVariable();
         ClSlackVariable eminus = new ClSlackVariable();
@@ -982,12 +982,12 @@ public class ClSimplexSolver extends ClTableau {
                 } else if (cn.isEditConstraint()) {
                     eplus_eminus.add(eplus);
                     eplus_eminus.add(eminus);
-                    prevEConstant.setValue(cnExpr.constant());
+                    prevEConstant.setValue(cnExpr.getConstant());
                 }
             }
         }
 
-        if (expr.constant() < 0)
+        if (expr.getConstant() < 0)
             expr.multiplyMe(-1);
 
         if (fTraceOn)
@@ -1037,7 +1037,7 @@ public class ClSimplexSolver extends ClTableau {
                     if (fTraceOn)
                         traceprint("pivotable, coeff = " + coeff);
                     if (coeff < 0.0) {
-                        r = -expr.constant() / coeff;
+                        r = -expr.getConstant() / coeff;
                         if (r < minRatio || (CL.approx(r, minRatio) && v.hashCode() < exitVar.hashCode())) {
                             minRatio = r;
                             exitVar = v;
@@ -1081,7 +1081,7 @@ public class ClSimplexSolver extends ClTableau {
     // stay was exactly satisfied. In this case nothing needs to be
     // changed. Otherwise one of them is basic, and the other must
     // occur only in the expression for that basic error variable.
-    // Reset the constant in this expression to 0.
+    // Reset the getConstant in this expression to 0.
     protected final void resetStayConstants() {
         int size = _stayPlusErrorVars.size();
         for (int i = 0; i < size; i++) {
@@ -1089,7 +1089,7 @@ public class ClSimplexSolver extends ClTableau {
             if (expr == null)
                 expr = rowExpression(_stayMinusErrorVars.get(i));
             if (expr != null)
-                expr.set_constant(0.0);
+                expr.setConstant(0.0);
         }
     }
 
@@ -1109,12 +1109,12 @@ public class ClSimplexSolver extends ClTableau {
                 System.err.println("Error: variable" + v + " in _externalParametricVars is basic");
                 continue;
             }
-            v.change_value(0.0);
+            v.changeValue(0.0);
         }
 
         for (ClVariable v : _externalRows) {
             ClLinearExpression expr = rowExpression(v);
-            v.change_value(expr.constant());
+            v.changeValue(expr.getConstant());
         }
 
         _fNeedsSolving = false;
