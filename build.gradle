@@ -3,6 +3,25 @@ task wrapper(type: Wrapper) {
 }
 
 apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+group = 'org.klomp'
+version = '1.0.0-SNAPSHOT'
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId 'cassowary'
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            // change to point to your repo, e.g. http://my.org/repo
+            url "$buildDir/repo"
+        }
+    }
+}
 
 repositories {
     mavenLocal()
