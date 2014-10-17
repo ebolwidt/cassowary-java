@@ -87,7 +87,7 @@ public class ClVariable extends ClAbstractVariable {
     // done when the value is changed by the solver
     // may be called when the value hasn't actually changed -- just
     // means the solver is setting the external variable
-    public void change_value(double value) {
+    public void changeValue(double value) {
         _value = value;
     }
 

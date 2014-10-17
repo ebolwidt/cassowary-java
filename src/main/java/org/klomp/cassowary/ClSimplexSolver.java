@@ -575,7 +575,7 @@ public class ClSimplexSolver extends ClTableau {
 
     public ClSimplexSolver setEditedValue(ClVariable v, double n) throws CLInternalError {
         if (!containsVariable(v)) {
-            v.change_value(n);
+            v.changeValue(n);
             return this;
         }
 
@@ -1109,12 +1109,12 @@ public class ClSimplexSolver extends ClTableau {
                 System.err.println("Error: variable" + v + " in _externalParametricVars is basic");
                 continue;
             }
-            v.change_value(0.0);
+            v.changeValue(0.0);
         }
 
         for (ClVariable v : _externalRows) {
             ClLinearExpression expr = rowExpression(v);
-            v.change_value(expr.getConstant());
+            v.changeValue(expr.getConstant());
         }
 
         _fNeedsSolving = false;
