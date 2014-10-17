@@ -1,0 +1,21 @@
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.12'
+}
+
+apply plugin: 'java'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+tasks.withType(Compile) {
+    options.encoding = "UTF-8"
+    options.compilerArgs << "-Xlint:unchecked"
+}
+
+dependencies {
+    compile "edu.princeton.cup:java-cup:10k"
+    compile "junit:junit:4.7"
+}
+
