@@ -124,7 +124,7 @@ public class ClSimplexSolver extends ClTableau {
         if (fTraceOn)
             fnenterprint("addConstraint: " + cn);
 
-        List<ClSlackVariable> eplus_eminus = new ArrayList<ClSlackVariable>(2);
+        List<ClAbstractVariable> eplus_eminus = new ArrayList<ClAbstractVariable>(2);
         ClDouble prevEConstant = new ClDouble();
         ClLinearExpression expr = newExpression(cn, eplus_eminus, prevEConstant);
         boolean fAddedOkDirectly = false;
@@ -150,8 +150,8 @@ public class ClSimplexSolver extends ClTableau {
         if (cn.isEditConstraint()) {
             int i = _editVarMap.size();
             ClEditConstraint cnEdit = (ClEditConstraint) cn;
-            ClSlackVariable clvEplus = eplus_eminus.get(0);
-            ClSlackVariable clvEminus = eplus_eminus.get(1);
+            ClAbstractVariable clvEplus = eplus_eminus.get(0);
+            ClAbstractVariable clvEminus = eplus_eminus.get(1);
             _editVarMap.put(cnEdit.variable(), new ClEditInfo(cnEdit, clvEplus, clvEminus, prevEConstant.doubleValue(), i));
         }
 
@@ -456,7 +456,7 @@ public class ClSimplexSolver extends ClTableau {
             ClEditConstraint cnEdit = (ClEditConstraint) cn;
             ClVariable clv = cnEdit.variable();
             ClEditInfo cei = _editVarMap.get(clv);
-            ClSlackVariable clvEditMinus = cei.ClvEditMinus();
+            ClAbstractVariable clvEditMinus = cei.ClvEditMinus();
             // ClSlackVariable clvEditPlus = cei.ClvEditPlus();
             // the clvEditPlus is a marker variable that is removed elsewhere
             removeColumn(clvEditMinus);
@@ -534,8 +534,8 @@ public class ClSimplexSolver extends ClTableau {
             System.err.println("suggestValue for variable " + v + ", but var is not an edit variable\n");
             throw new CLException();
         }
-        ClSlackVariable clvEditPlus = cei.ClvEditPlus();
-        ClSlackVariable clvEditMinus = cei.ClvEditMinus();
+        ClAbstractVariable clvEditPlus = cei.ClvEditPlus();
+        ClAbstractVariable clvEditMinus = cei.ClvEditMinus();
         double delta = x - cei.PrevEditConstant();
         cei.SetPrevEditConstant(x);
         deltaEditConstant(delta, clvEditPlus, clvEditMinus);
@@ -902,7 +902,7 @@ public class ClSimplexSolver extends ClTableau {
     // Normalize if necessary so that the constant is non-negative. If
     // the constraint is non-required give its error variables an
     // appropriate weight in the objective function.
-    protected final ClLinearExpression newExpression(ClConstraint cn, List<ClSlackVariable> eplus_eminus, ClDouble prevEConstant) {
+    protected final ClLinearExpression newExpression(ClConstraint cn, List<ClAbstractVariable> eplus_eminus, ClDouble prevEConstant) {
         if (fTraceOn)
             fnenterprint("newExpression: " + cn);
         if (fTraceOn)
@@ -917,6 +917,7 @@ public class ClSimplexSolver extends ClTableau {
         ClSlackVariable eminus = new ClSlackVariable();
         ClSlackVariable eplus = new ClSlackVariable();
         final Map<ClAbstractVariable, ClDouble> cnTerms = cnExpr.terms();
+
         for (Map.Entry<ClAbstractVariable, ClDouble> entry : cnTerms.entrySet()) {
             final ClAbstractVariable v = entry.getKey();
             double c = entry.getValue().doubleValue();
@@ -947,6 +948,11 @@ public class ClSimplexSolver extends ClTableau {
             if (cn.isRequired()) {
                 ++_dummyCounter;
                 ClDummyVariable dummyVar = new ClDummyVariable(_dummyCounter, "d");
+
+                eplus_eminus.add(dummyVar);
+                eplus_eminus.add(dummyVar);
+                prevEConstant.setValue(cnExpr.constant());
+
                 expr.setVariable(dummyVar, 1.0);
                 _markerVars.put(cn, dummyVar);
                 if (fTraceOn)
