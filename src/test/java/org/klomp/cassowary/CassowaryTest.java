@@ -193,12 +193,11 @@ public class CassowaryTest {
 
         solver.addConstraint(new ClLinearInequality(x, CL.GEQ, y));
 
-        solver.beginEdit();
+        solver.addStay(y);
+
         solver.setEditedValue(y, 10);
         solver.resolve();
         Assert.assertTrue("x.getValue() == " + x.getValue(), x.getValue() >= 10);
-        solver.endEdit();
-
     }
 
 }
