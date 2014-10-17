@@ -215,7 +215,7 @@ class ClTableau extends CL {
         for (ClAbstractVariable v : varset) {
             ClLinearExpression row = _rows.get(v);
             row.substituteOut(oldVar, expr, v, this);
-            if (v.isRestricted() && row.constant() < 0.0) {
+            if (v.isRestricted() && row.getConstant() < 0.0) {
                 _infeasibleRows.add(v);
             }
         }
