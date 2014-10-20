@@ -1,0 +1,42 @@
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.12'
+}
+
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+group = 'org.klomp'
+version = '1.0.0-SNAPSHOT'
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId 'cassowary'
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            credentials {
+                username project.hasProperty('mavenUsername') ? mavenUsername : null
+                password project.hasProperty('mavenPassword') ? mavenPassword : null
+            }
+            url project.hasProperty('mavenUrl') ? mavenUrl : null
+        }
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+tasks.withType(Compile) {
+    options.encoding = "UTF-8"
+    options.compilerArgs << "-Xlint:unchecked"
+}
+
+dependencies {
+    compile "junit:junit:4.7"
+}
+
