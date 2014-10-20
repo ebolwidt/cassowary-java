@@ -17,8 +17,11 @@ publishing {
     }
     repositories {
         maven {
-            // change to point to your repo, e.g. http://my.org/repo
-            url "$buildDir/repo"
+            credentials {
+                username project.hasProperty('mavenUsername') ? mavenUsername : null
+                password project.hasProperty('mavenPassword') ? mavenPassword : null
+            }
+            url project.hasProperty('mavenUrl') ? mavenUrl : null
         }
     }
 }
