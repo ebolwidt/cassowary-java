@@ -37,7 +37,6 @@ tasks.withType(Compile) {
 }
 
 dependencies {
-    compile "edu.princeton.cup:java-cup:10k"
     compile "junit:junit:4.7"
 }
 
